@@ -1,0 +1,7 @@
+Django
+dj-database-url
+python-dotenv
+psycopg2-binary
+uvicorn
+django-cors-headers
+whitenoise
