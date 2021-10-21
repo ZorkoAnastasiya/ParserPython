@@ -28,10 +28,10 @@ class UserSignupForm(UserCreationForm):
 
 class UserLoginForm(AuthenticationForm):
     username = forms.CharField(
-        label = "Username",
+        label = "Имя Пользователя",
         widget = forms.TextInput(attrs = {"class": "form-control"})
     )
     password = forms.CharField(
-        label = "Password",
+        label = "Пароль",
         widget = forms.PasswordInput(attrs = {"class": "form-control"})
     )

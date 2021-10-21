@@ -25,7 +25,7 @@ class Resources(models.Model):
 class Articles(models.Model):
     objects = models.Manager()
 
-    date = models.TextField(blank = True)
+    date = models.DateTimeField()
     title = models.TextField(null = True)
     text = models.TextField(null = True)
     url = models.URLField(unique = True)

@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
-from django.views.generic import FormView
+from django.views import View
+from django.views.generic import FormView, CreateView, ListView, DetailView
 from django.contrib.auth import authenticate, login
 from parser_project.forms import UserSignupForm, UserLoginForm
 
@@ -30,3 +31,19 @@ class UserSignupView(SuccessMessageMixin, FormView):
 class UserLoginView(LoginView):
     form_class = UserLoginForm
     template_name = "parser_project/login.html"
+
+
+class NewsListView(View):
+    pass
+
+
+class AddUrlView(CreateView):
+    pass
+
+
+class AllResourcesView(ListView):
+    pass
+
+
+class ArticlesView(DetailView):
+    pass
