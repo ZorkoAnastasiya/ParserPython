@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+    {{title}}: {{block.super}}
+
+{% endblock %}
+
+{% block sidebar %}
+<h1>{{header}}</h1>
+{% include 'include/_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+    {% for item in object_list %}
+     <div class="card mb-3">
+         <div class="card-header">
+             Ресурс: <a href="{{item.resource.get_absolute_url}}">{{item.resource}}</a>
+         </div>
+         <div class="card-body">
+                     <h5 class="card-title">{{item.title}}</h5>
+                     <p class="card-text">{{item.text|linebreaks|truncatewords:10}}</p>
+                     <a href="{{item.get_absolute_url}}" class="btn btn-primary">Read more...</a>
+                 </div>
+             </div>
+         <div class="card-footer text-muted">
+             {{item.date|date:"Y-m-d H:i"}}
+         </div>
+     {% empty %}
+     <p>No content</p>
+     {% endfor %}
+{% endblock %}

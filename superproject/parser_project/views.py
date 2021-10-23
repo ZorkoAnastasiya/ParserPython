@@ -6,6 +6,7 @@ from django.views import View
 from django.views.generic import FormView, CreateView, ListView, DetailView
 from django.contrib.auth import authenticate, login
 from parser_project.forms import UserSignupForm, UserLoginForm
+from parser_project.models import Articles
 
 
 class UserSignupView(SuccessMessageMixin, FormView):
@@ -33,7 +34,7 @@ class UserLoginView(LoginView):
     template_name = "parser_project/login.html"
 
 
-class NewsListView(View):
+class ResourceNewsView(View):
     pass
 
 
@@ -42,7 +43,13 @@ class AddUrlView(CreateView):
 
 
 class AllResourcesView(ListView):
-    pass
+    model = Articles
+    template_name = "parser_project/all_resources.html"
+    extra_context = {
+        "title": "Новости",
+        "header": "Все новости"
+    }
+    paginate_by = 5
 
 
 class ArticlesView(DetailView):

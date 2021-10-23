@@ -1,9 +1,12 @@
 import re
 import httpx
+import logging
 from typing import Optional, Union, List
 from datetime import datetime
 from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
+
+logging.basicConfig(level=logging.INFO)
 
 
 class BaseParser:
@@ -41,7 +44,9 @@ class BaseParser:
             response = httpx.get(url, headers = headers)
             if response.status_code == 200:
                 return response
-        except (httpx.ConnectError, httpx.ConnectTimeout):
+            logging.info(response.status_code)
+        except (httpx.ConnectError, httpx.ConnectTimeout) as err:
+            logging.error(err.__doc__)
             return
 
 
@@ -122,13 +127,14 @@ class AbstractParserNews(BaseParser, ABC):
     HOST = ''
     DATE_FORMAT = ''
 
-    def __init__(self):
-        self.url_news_list = f"{self.HOST}{self.get_date_today()}"
-
     def get_date_today(self) -> str:
         date = datetime.today().date()
         date = date.strftime(self.DATE_FORMAT)
         return date
+
+    def get_url_news_list(self) -> str:
+        url = f"{self.HOST}{self.get_date_today()}"
+        return url
 
     @abstractmethod
     def get_news_list(self) -> List[dict]:
@@ -144,7 +150,7 @@ class SputnikParserNews(AbstractParserNews):
     DATE_FORMAT = '/%Y%m%d/'
 
     def get_news_list(self) -> Union[list, dict]:
-        url = self.url_news_list
+        url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
@@ -182,12 +188,12 @@ class LentaParserNews(AbstractParserNews):
     HOST = 'https://lenta.ru'
     DATE_FORMAT = '/%Y/%m/%d/'
 
-    def __init__(self):
-        super().__init__()
-        self.url_news_list = f"{self.HOST}/news{self.get_date_today()}"
+    def get_url_news_list(self):
+        url = f"{self.HOST}/news{self.get_date_today()}"
+        return url
 
     def get_news_list(self) -> Union[list, dict]:
-        url = self.url_news_list
+        url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
@@ -233,7 +239,7 @@ class EuronewsParserNews(AbstractParserNews):
     DATE_FORMAT = '/%Y/%m/%d/'
 
     def get_news_list(self) -> Union[dict, list]:
-        url = self.url_news_list
+        url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
