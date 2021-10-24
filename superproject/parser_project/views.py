@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic import FormView, CreateView, ListView, DetailView
 from django.contrib.auth import authenticate, login
 from parser_project.forms import UserSignupForm, UserLoginForm
-from parser_project.models import Articles
+from parser_project.models import Articles, Resources
 from parser_project.parsers import SputnikParserNews, LentaParserNews, EuronewsParserNews
 
 
@@ -60,26 +60,34 @@ class ResourceNewsView(ListView):
         elif resource == 'Euronews':
             return EuronewsParserNews()
 
-    def save_data(self, news_list):
-        pass
+    def save_data(self, news_list, pk):
+        for item in news_list:
+            if not self.model.objects.filter(url=item['url']).exists():
+                self.model.objects.create(
+                    date = item['date'],
+                    title = item['title'],
+                    url = item['url'],
+                    resource_id = pk
+                )
 
-    def update_data(self, resource):
-        parser = self.get_parser(str(resource.title))
+    def update_data(self, pk):
+        obj = Resources.objects.get(id=pk)
+        parser = self.get_parser(str(obj.title))
         if parser:
             news_list = parser.get_news_list()
-            return self.save_data(news_list)
+            return self.save_data(news_list, pk)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        obj = self.model.objects.get(pk=self.kwargs.get('resource_id'))
+        obj = Resources.objects.get(pk=self.kwargs.get('resource_id'))
         context['title'] = obj
         context['header'] = obj
         return context
 
     def get_queryset(self):
-        resource = self.model.objects.get(pk=self.kwargs.get('resource_id'))
-        self.update_data(resource)
-        return super().get_queryset()
+        pk = self.kwargs.get('resource_id')
+        self.update_data(pk)
+        return super().get_queryset().filter(resource_id=pk)
 
 
 class AddUrlView(CreateView):

@@ -1,4 +1,5 @@
 import re
+import pytz
 import httpx
 import logging
 from typing import Optional, Union, List
@@ -118,8 +119,8 @@ class UniversalParser(BaseParser):
             if not date:
                 date = self.get_date(text)
             if not date:
-                date = datetime.today().strftime('%Y-%m-%d %H:%M')
-            return {"date": date, "title": title, "link": url, "text": text}
+                date = datetime.now(pytz.utc)
+            return {"date": date, "title": title, "url": url, "text": text}
         return {"Сообщение": "Ошибка запроса"}
 
 
@@ -155,14 +156,14 @@ class SputnikParserNews(AbstractParserNews):
         if html:
             soup = BeautifulSoup(html, 'lxml')
             items = soup.find_all('a', class_='list__title')
-            date_time = datetime.today()
+            date_time = datetime.now(pytz.utc)
             news_list = []
             for item in items:
                 news_list.append(
                     {
                         "date": date_time,
                         "title": item.get("title"),
-                        "link": self.HOST + item.get("href")
+                        "url": self.HOST + item.get("href")
                     }
                 )
             return news_list
@@ -198,7 +199,7 @@ class LentaParserNews(AbstractParserNews):
         if html:
             soup = BeautifulSoup(html, 'lxml')
             items = soup.find_all('a', class_ = 'titles')
-            date_time = datetime.today()
+            date_time = datetime.now(pytz.utc)
             news_list = []
             for item in items:
                 title = str(item.find('h3', class_ = 'card-title').get_text())
@@ -206,7 +207,7 @@ class LentaParserNews(AbstractParserNews):
                     {
                         "date": date_time,
                         "title": title.replace('\xa0', ' '),
-                        "link": self.HOST + item.get('href')
+                        "url": self.HOST + item.get('href')
                     }
                 )
             return news_list
@@ -244,14 +245,14 @@ class EuronewsParserNews(AbstractParserNews):
         if html:
             soup = BeautifulSoup(html, 'lxml')
             items = soup.find_all('a', class_ = 'm-object__title__link')
-            date_time = datetime.today()
+            date_time = datetime.now(pytz.utc)
             news_list = []
             for item in items:
                 news_list.append(
                     {
                         "date": date_time,
                         "title": item.get('title'),
-                        "link": self.HOST + item.get('href')
+                        "url": self.HOST + item.get('href')
                     }
                 )
             return news_list

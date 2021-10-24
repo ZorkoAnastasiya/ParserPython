@@ -18,14 +18,13 @@
              Ресурс: <a href="{{item.resource.get_absolute_url}}">{{item.resource}}</a>
          </div>
          <div class="card-body">
-                     <h5 class="card-title">{{item.title}}</h5>
-                     <p class="card-text">{{item.text|linebreaks|truncatewords:10}}</p>
-                     <a href="{{item.get_absolute_url}}" class="btn btn-primary">Read more...</a>
+                     <a href="{{item.get_absolute_url}}">
+                         <h5 class="card-title">{{item.title}}</h5>
+                     </a>
+                        {{item.date|date:"Y-m-d H:i"}}
                  </div>
              </div>
-         <div class="card-footer text-muted">
-             {{item.date|date:"Y-m-d H:i"}}
-         </div>
+
      {% empty %}
      <p>No content</p>
      {% endfor %}
