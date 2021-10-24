@@ -128,8 +128,8 @@ class AbstractParserNews(BaseParser, ABC):
     DATE_FORMAT = ''
 
     def get_date_today(self) -> str:
-        date = datetime.today().date()
-        date = date.strftime(self.DATE_FORMAT)
+        dt = datetime.today().date()
+        date = dt.strftime(self.DATE_FORMAT)
         return date
 
     def get_url_news_list(self) -> str:
@@ -155,12 +155,12 @@ class SputnikParserNews(AbstractParserNews):
         if html:
             soup = BeautifulSoup(html, 'lxml')
             items = soup.find_all('a', class_='list__title')
-            date = datetime.today()
+            date_time = datetime.today()
             news_list = []
             for item in items:
                 news_list.append(
                     {
-                        "date": date,
+                        "date": date_time,
                         "title": item.get("title"),
                         "link": self.HOST + item.get("href")
                     }
@@ -174,12 +174,12 @@ class SputnikParserNews(AbstractParserNews):
             soup = BeautifulSoup(html, 'lxml')
             body = soup.find_all('div', class_ = 'article__text')
             dt = soup.find('div', class_ = 'article__info-date').get_text(strip = True)
-            date = datetime.strptime(dt, '%H:%M %d.%m.%Y')
+            date_time = datetime.strptime(dt, '%H:%M %d.%m.%Y')
             preview = soup.find('div', class_ = 'article__announce-text').get_text()
             text = f"{preview} "
             for item in body:
                 text += item.get_text().replace('.', '. ')
-            news = {"date": date, "text": text.strip()}
+            news = {"date": date_time, "text": text.strip()}
             return news
         return {"Сообщение": "Ошибка запроса"}
 
@@ -198,13 +198,13 @@ class LentaParserNews(AbstractParserNews):
         if html:
             soup = BeautifulSoup(html, 'lxml')
             items = soup.find_all('a', class_ = 'titles')
-            date = datetime.today()
+            date_time = datetime.today()
             news_list = []
             for item in items:
                 title = str(item.find('h3', class_ = 'card-title').get_text())
                 news_list.append(
                     {
-                        "date": date,
+                        "date": date_time,
                         "title": title.replace('\xa0', ' '),
                         "link": self.HOST + item.get('href')
                     }
@@ -220,7 +220,7 @@ class LentaParserNews(AbstractParserNews):
             date = soup.find('div', class_ = 'b-topic__info').get_text(strip = True)
             dt = re.search(r'(\d{2}) ([а-я]*) (\d{4})', date)
             tm = re.search(r'(\d{2}):(\d{2})', date)
-            date = datetime(
+            date_time = datetime(
                 int(dt.group(3)),
                 self.MONTH_DICT.get(dt.group(2).lower()),
                 int(dt.group(1)),
@@ -229,7 +229,7 @@ class LentaParserNews(AbstractParserNews):
             )
             preview = soup.find('div', class_ = 'b-topic__title-yandex').get_text()
             text = f"{preview}. {body}"
-            news_text = {"date": date, "text": text}
+            news_text = {"date": date_time, "text": text}
             return news_text
         return {"Сообщение": "Ошибка запроса"}
 
@@ -244,12 +244,12 @@ class EuronewsParserNews(AbstractParserNews):
         if html:
             soup = BeautifulSoup(html, 'lxml')
             items = soup.find_all('a', class_ = 'm-object__title__link')
-            date = datetime.today()
+            date_time = datetime.today()
             news_list = []
             for item in items:
                 news_list.append(
                     {
-                        "date": date,
+                        "date": date_time,
                         "title": item.get('title'),
                         "link": self.HOST + item.get('href')
                     }
@@ -270,7 +270,7 @@ class EuronewsParserNews(AbstractParserNews):
             dt_tm = f"{dt} {tm}"
             date_time = datetime.strptime(dt_tm, '%d/%m/%Y %H:%M')
             body = soup.find_all('div', class_ = 'c-article-content js-article-content')
-            if body == []:
+            if not body:
                 body = soup.find_all('div', class_ = 'c-article-content')
             text = ''
             for item in body:
