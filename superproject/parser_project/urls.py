@@ -1,7 +1,7 @@
 from django.urls import path
 from parser_project.views import ResourceNewsView, AddUrlView, AllResourcesView
 from parser_project.views import ArticlesView, UserArchiveView, AddArticleArchiveView
-from parser_project.views import DeleteArticleArchiveView
+from parser_project.views import DeleteArticleArchiveView, UpdateArticleView
 
 app_name = "parse"
 
@@ -13,4 +13,5 @@ urlpatterns = [
     path('<int:pk>', ArticlesView.as_view(), name="article"),
     path('<int:pk>/add_archive', AddArticleArchiveView.as_view(), name= "add_archive"),
     path('<int:pk>/delete_archive', DeleteArticleArchiveView.as_view(), name= "delete_archive"),
+    path('<int:pk>/update', UpdateArticleView.as_view(), name= "update"),
 ]

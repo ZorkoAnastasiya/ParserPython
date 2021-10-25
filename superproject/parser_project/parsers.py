@@ -121,7 +121,6 @@ class UniversalParser(BaseParser):
             if not date:
                 date = datetime.now(pytz.utc)
             return {"date": date, "title": title, "url": url, "text": text}
-        return {"Сообщение": "Ошибка запроса"}
 
 
 class AbstractParserNews(BaseParser, ABC):
@@ -150,7 +149,7 @@ class SputnikParserNews(AbstractParserNews):
     HOST = 'https://sputnik.by'
     DATE_FORMAT = '/%Y%m%d/'
 
-    def get_news_list(self) -> Union[list, dict]:
+    def get_news_list(self) -> list:
         url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
@@ -167,7 +166,6 @@ class SputnikParserNews(AbstractParserNews):
                     }
                 )
             return news_list
-        return {"Сообщение": "Ошибка запроса"}
 
     def get_news_text(self, url: str) -> dict:
         html = self.get_html(url)
@@ -185,7 +183,6 @@ class SputnikParserNews(AbstractParserNews):
                 text += item.get_text().replace('.', '. ')
             news = {"date": date_time, "text": text.strip()}
             return news
-        return {"Сообщение": "Ошибка запроса"}
 
 
 class LentaParserNews(AbstractParserNews):
@@ -214,7 +211,6 @@ class LentaParserNews(AbstractParserNews):
                     }
                 )
             return news_list
-        return {"Сообщение": "Ошибка запроса"}
 
     def get_news_text(self, url: str) -> dict:
         html = self.get_html(url)
@@ -235,7 +231,6 @@ class LentaParserNews(AbstractParserNews):
             text = f"{preview}. {body}"
             news_text = {"date": date_time, "text": text}
             return news_text
-        return {"Сообщение": "Ошибка запроса"}
 
 
 class EuronewsParserNews(AbstractParserNews):
@@ -259,7 +254,6 @@ class EuronewsParserNews(AbstractParserNews):
                     }
                 )
             return news_list
-        return {"Сообщение": "Ошибка запроса"}
 
     def get_news_text(self, url: str) -> dict:
         html = self.get_html(url)
@@ -281,4 +275,3 @@ class EuronewsParserNews(AbstractParserNews):
                 text = item.get_text().replace('.', '. ')
             news_text = {"date": date_time, "text": text.strip()}
             return news_text
-        return {"Сообщение": "Ошибка запроса"}

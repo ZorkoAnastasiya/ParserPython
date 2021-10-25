@@ -14,14 +14,18 @@
 {% block content %}
 <div class="card mb-3">
     <div class="card-header">
-        Rubric: <a href="{{object.resource.get_absolute_url}}">{{object.resource}}</a>
+        Ресурс: <a href="{{object.resource.get_absolute_url}}">{{object.resource}}</a>
+        <br>
+        Дата публикации статьи: {{object.date|date:"Y-m-d H:i"}}
     </div>
     <div class="card-body">
         <div class="media">
             <div class="media-body">
                 <h5 class="card-title">{{object.title}}</h5>
                 <p class="card-text">{{object.text|linebreaks}}</p>
+
                 <p align="right">
+                    <a href={{object.url}} class="btn btn-outline-secondary">Перейти на источник</a>
                     {% if archive == request.user.id %}
                     <a href="{% url 'parse:delete_archive' object.pk %}" class="btn btn-outline-danger">Удалить из архива</a>
                     {% else %}
@@ -32,12 +36,9 @@
         </div>
     </div>
     <div class="card-footer text-muted">
-        Дата публикации статьи: {{object.date|date:"Y-m-d H:i"}}
         <br>
-        Дата последнего сохранения: {{object.date_update|date:"Y-m-d H:i"}}
-        <p align="right">
-            <a href="#" class="btn btn-outline-success">Обновить</a>
-        </p>
+        <span style="float:left">Дата последнего сохранения: {{object.date_update|date:"Y-m-d H:i"}}</span>
+        <span style="float:right"><a href="{% url 'parse:update' object.pk %}" class="btn btn-outline-success">Обновить</a></span>
     </div>
 </div>
 {% endblock %}

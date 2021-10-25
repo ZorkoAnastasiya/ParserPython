@@ -76,7 +76,8 @@ class ResourceNewsView(LoginRequiredMixin, ListView):
         parser = self.get_parser(str(obj.title))
         if parser:
             news_list = parser.get_news_list()
-            return self.save_data_list(news_list, pk)
+            if news_list:
+                return self.save_data_list(news_list, pk)
 
     def get_queryset(self):
         pk = self.kwargs.get('resource_id')
@@ -121,17 +122,18 @@ class ArticlesView(LoginRequiredMixin, DetailView):
             return EuronewsParserNews()
 
     def save_data_text(self, text, pk):
-        self.model.objects.filter(id = pk).update(
-            date = text['date'],
-            text = text['text']
-        )
+        obj = self.model.objects.get(id = pk)
+        obj.date = text['date']
+        obj.text = text['text']
+        obj.save()
 
     def parse_text(self, obj):
         parser = self.get_parser(str(obj.resource.title))
         if parser:
             url = obj.url
             text = parser.get_news_text(url)
-            return self.save_data_text(text, obj.id)
+            if text:
+                return self.save_data_text(text, obj.id)
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -166,6 +168,41 @@ class DeleteArticleArchiveView(LoginRequiredMixin, RedirectView):
         obj = Articles.objects.get(id=self.kwargs.get('pk'))
         user = User.objects.get(id=self.request.user.id)
         user.articles_set.remove(obj)
+        return super().get_redirect_url(*args, **kwargs)
+
+
+class UpdateArticleView(LoginRequiredMixin, RedirectView):
+    model = Articles
+    pattern_name = "parse:article"
+
+    @staticmethod
+    def get_parser(resource):
+        if resource == 'Другие ресурсы':
+            return
+        elif resource == 'Sputnik Беларусь':
+            return SputnikParserNews()
+        elif resource == 'Lenta Новости':
+            return LentaParserNews()
+        elif resource == 'Euronews':
+            return EuronewsParserNews()
+
+    def save_data_text(self, text, pk):
+        obj = self.model.objects.get(id = pk)
+        obj.date = text['date']
+        obj.text = text['text']
+        obj.save()
+
+    def parse_text(self, obj):
+        parser = self.get_parser(str(obj.resource.title))
+        if parser:
+            url = obj.url
+            text = parser.get_news_text(url)
+            if text:
+                return self.save_data_text(text, obj.id)
+
+    def get_redirect_url(self, *args, **kwargs):
+        obj = self.model.objects.get(id = self.kwargs.get('pk'))
+        self.parse_text(obj)
         return super().get_redirect_url(*args, **kwargs)
 
 
