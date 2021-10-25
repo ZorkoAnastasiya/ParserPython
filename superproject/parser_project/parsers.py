@@ -174,8 +174,11 @@ class SputnikParserNews(AbstractParserNews):
         if html:
             soup = BeautifulSoup(html, 'lxml')
             body = soup.find_all('div', class_ = 'article__text')
-            dt = soup.find('div', class_ = 'article__info-date').get_text(strip = True)
-            date_time = datetime.strptime(dt, '%H:%M %d.%m.%Y')
+            date = soup.find('div', class_ = 'article__info-date').get_text(strip = True)
+            dt = re.search(r'(\d{2})\.(\d{2}).(\d{4})', date).group(0)
+            tm = re.search(r'(\d{2}):(\d{2})', date).group(0)
+            dt_tm = f"{tm} {dt}"
+            date_time = datetime.strptime(dt_tm, '%H:%M %d.%m.%Y')
             preview = soup.find('div', class_ = 'article__announce-text').get_text()
             text = f"{preview} "
             for item in body:

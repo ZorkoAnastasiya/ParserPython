@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+    {{header}}: {{block.super}}
+
+{% endblock %}
+
+{% block sidebar %}
+<h1>{{object.title}}</h1>
+{% include 'include/_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    <div class="card-header">
+        Rubric: <a href="{{object.resource.get_absolute_url}}">{{object.resource}}</a>
+    </div>
+    <div class="card-body">
+        <div class="media">
+            <div class="media-body">
+                <h5 class="card-title">{{object.title}}</h5>
+                <p class="card-text">{{object.text|linebreaks}}</p>
+                <p align="right">
+                    <a href="#" class="btn btn-outline-primary">Edit Post</a>
+                    <a href="#" class="btn btn-outline-danger">Delete</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-muted">
+        {{object.date|date:"Y-m-d H:i"}}
+    </div>
+</div>
+{% endblock %}

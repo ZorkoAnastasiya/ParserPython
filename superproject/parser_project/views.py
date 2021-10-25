@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
@@ -34,7 +35,7 @@ class UserLoginView(LoginView):
     template_name = "parser_project/login.html"
 
 
-class AllResourcesView(ListView):
+class AllResourcesView(LoginRequiredMixin, ListView):
     model = Articles
     template_name = "parser_project/all_resources.html"
     extra_context = {
@@ -44,7 +45,7 @@ class AllResourcesView(ListView):
     paginate_by = 20
 
 
-class ResourceNewsView(ListView):
+class ResourceNewsView(LoginRequiredMixin, ListView):
     model = Articles
     template_name = "parser_project/all_resources.html"
     paginate_by = 20
@@ -60,7 +61,7 @@ class ResourceNewsView(ListView):
         elif resource == 'Euronews':
             return EuronewsParserNews()
 
-    def save_data(self, news_list, pk):
+    def save_data_list(self, news_list, pk):
         for item in news_list:
             if not self.model.objects.filter(url=item['url']).exists():
                 self.model.objects.create(
@@ -70,12 +71,17 @@ class ResourceNewsView(ListView):
                     resource_id = pk
                 )
 
-    def update_data(self, pk):
+    def parse_news_list(self, pk):
         obj = Resources.objects.get(id=pk)
         parser = self.get_parser(str(obj.title))
         if parser:
             news_list = parser.get_news_list()
-            return self.save_data(news_list, pk)
+            return self.save_data_list(news_list, pk)
+
+    def get_queryset(self):
+        pk = self.kwargs.get('resource_id')
+        self.parse_news_list(pk)
+        return super().get_queryset().filter(resource_id=pk)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -84,15 +90,44 @@ class ResourceNewsView(ListView):
         context['header'] = obj
         return context
 
+
+class ArticlesView(LoginRequiredMixin, DetailView):
+    model = Articles
+    template_name = "parser_project/article.html"
+    extra_context = {"header": "Статья"}
+
+    @staticmethod
+    def get_parser(resource):
+        if resource == 'Другие ресурсы':
+            return
+        elif resource == 'Sputnik Беларусь':
+            return SputnikParserNews()
+        elif resource == 'Lenta Новости':
+            return LentaParserNews()
+        elif resource == 'Euronews':
+            return EuronewsParserNews()
+
+    def save_data_text(self, text, pk):
+        self.model.objects.filter(id = pk).update(
+            date = text['date'],
+            text = text['text']
+        )
+
+    def parse_text(self, obj):
+        parser = self.get_parser(str(obj.resource.title))
+        if parser:
+            url = obj.url
+            text = parser.get_news_text(url)
+            return self.save_data_text(text, obj.id)
+
     def get_queryset(self):
-        pk = self.kwargs.get('resource_id')
-        self.update_data(pk)
-        return super().get_queryset().filter(resource_id=pk)
+        pk = self.kwargs.get('pk')
+        obj = self.model.objects.get(id = pk)
+        if not obj.text:
+            self.parse_text(obj)
+        obj.users.add(self.request.user.id)
+        return super().get_queryset()
 
 
 class AddUrlView(CreateView):
-    pass
-
-
-class ArticlesView(DetailView):
     pass
