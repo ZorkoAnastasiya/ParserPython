@@ -3,10 +3,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
-from django.views.generic import FormView, CreateView, ListView, DetailView
+from django.views.generic import FormView, CreateView, ListView, DetailView, RedirectView
 from django.contrib.auth import authenticate, login
 from parser_project.forms import UserSignupForm, UserLoginForm
-from parser_project.models import Articles, Resources
+from parser_project.models import Articles, Resources, User
 from parser_project.parsers import SputnikParserNews, LentaParserNews, EuronewsParserNews
 
 
@@ -91,10 +91,23 @@ class ResourceNewsView(LoginRequiredMixin, ListView):
         return context
 
 
+class UserArchiveView(LoginRequiredMixin, ListView):
+    model = Articles
+    template_name = "parser_project/all_resources.html"
+    paginate_by = 20
+    extra_context = {
+        "title": "Мой Архив",
+        "header": "Мой Архив"
+    }
+
+    def get_queryset(self):
+        user = self.request.user.id
+        return super().get_queryset().filter(users=user)
+
+
 class ArticlesView(LoginRequiredMixin, DetailView):
     model = Articles
     template_name = "parser_project/article.html"
-    extra_context = {"header": "Статья"}
 
     @staticmethod
     def get_parser(resource):
@@ -125,8 +138,35 @@ class ArticlesView(LoginRequiredMixin, DetailView):
         obj = self.model.objects.get(id = pk)
         if not obj.text:
             self.parse_text(obj)
-        obj.users.add(self.request.user.id)
         return super().get_queryset()
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.model.objects.get(id = self.kwargs.get('pk')).users.all()
+        for user in obj:
+            if self.request.user.id == user.id:
+                context['archive'] = self.request.user.id
+        context['header'] = "Статья"
+        return context
+
+
+class AddArticleArchiveView(LoginRequiredMixin, RedirectView):
+    pattern_name = "parse:article"
+
+    def get_redirect_url(self, *args, **kwargs):
+        obj = Articles.objects.get(id = self.kwargs.get('pk'))
+        obj.users.add(self.request.user.id)
+        return super().get_redirect_url(*args, **kwargs)
+
+
+class DeleteArticleArchiveView(LoginRequiredMixin, RedirectView):
+    pattern_name = "parse:article"
+
+    def get_redirect_url(self, *args, **kwargs):
+        obj = Articles.objects.get(id=self.kwargs.get('pk'))
+        user = User.objects.get(id=self.request.user.id)
+        user.articles_set.remove(obj)
+        return super().get_redirect_url(*args, **kwargs)
 
 
 class AddUrlView(CreateView):

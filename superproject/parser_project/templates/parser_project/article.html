@@ -22,14 +22,22 @@
                 <h5 class="card-title">{{object.title}}</h5>
                 <p class="card-text">{{object.text|linebreaks}}</p>
                 <p align="right">
-                    <a href="#" class="btn btn-outline-primary">Edit Post</a>
-                    <a href="#" class="btn btn-outline-danger">Delete</a>
+                    {% if archive == request.user.id %}
+                    <a href="{% url 'parse:delete_archive' object.pk %}" class="btn btn-outline-danger">Удалить из архива</a>
+                    {% else %}
+                    <a href="{% url 'parse:add_archive' object.pk %}" class="btn btn-outline-primary">Добавить в архив</a>
+                    {% endif %}
                 </p>
             </div>
         </div>
     </div>
     <div class="card-footer text-muted">
-        {{object.date|date:"Y-m-d H:i"}}
+        Дата публикации статьи: {{object.date|date:"Y-m-d H:i"}}
+        <br>
+        Дата последнего сохранения: {{object.date_update|date:"Y-m-d H:i"}}
+        <p align="right">
+            <a href="#" class="btn btn-outline-success">Обновить</a>
+        </p>
     </div>
 </div>
 {% endblock %}
