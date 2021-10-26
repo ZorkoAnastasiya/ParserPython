@@ -1,14 +1,15 @@
 from django.contrib import messages
+from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
-from django.views.generic import FormView, CreateView, ListView, DetailView, RedirectView
 from django.contrib.auth import authenticate, login
 from parser_project.forms import UserSignupForm, UserLoginForm, AddUrlForm
 from parser_project.models import Articles, Resources, User
-from parser_project.parsers import SputnikParserNews, LentaParserNews, EuronewsParserNews, UniversalParser
-from datetime import datetime
+from parser_project.parser.universal import UniversalParser
+from parser_project.utils import ParserMixin
+from django.views.generic import FormView, CreateView, ListView, DetailView, RedirectView
 
 
 class UserSignupView(SuccessMessageMixin, FormView):
@@ -46,39 +47,10 @@ class AllResourcesView(LoginRequiredMixin, ListView):
     paginate_by = 20
 
 
-class ResourceNewsView(LoginRequiredMixin, ListView):
+class ResourceNewsView(LoginRequiredMixin, ParserMixin, ListView):
     model = Articles
     template_name = "parser_project/all_resources.html"
     paginate_by = 20
-
-    @staticmethod
-    def get_parser(resource):
-        if resource == 'Другие ресурсы':
-            return
-        elif resource == 'Sputnik Беларусь':
-            return SputnikParserNews()
-        elif resource == 'Lenta Новости':
-            return LentaParserNews()
-        elif resource == 'Euronews':
-            return EuronewsParserNews()
-
-    def save_data_list(self, news_list, pk):
-        for item in news_list:
-            if not self.model.objects.filter(url=item['url']).exists():
-                self.model.objects.create(
-                    date = item['date'],
-                    title = item['title'],
-                    url = item['url'],
-                    resource_id = pk
-                )
-
-    def parse_news_list(self, pk):
-        obj = Resources.objects.get(id=pk)
-        parser = self.get_parser(str(obj.title))
-        if parser:
-            news_list = parser.get_news_list()
-            if news_list:
-                return self.save_data_list(news_list, pk)
 
     def get_queryset(self):
         pk = self.kwargs.get('resource_id')
@@ -107,34 +79,9 @@ class UserArchiveView(LoginRequiredMixin, ListView):
         return super().get_queryset().filter(users=user)
 
 
-class ArticlesView(LoginRequiredMixin, DetailView):
+class ArticlesView(LoginRequiredMixin, ParserMixin, DetailView):
     model = Articles
     template_name = "parser_project/article.html"
-
-    @staticmethod
-    def get_parser(resource):
-        if resource == 'Другие ресурсы':
-            return
-        elif resource == 'Sputnik Беларусь':
-            return SputnikParserNews()
-        elif resource == 'Lenta Новости':
-            return LentaParserNews()
-        elif resource == 'Euronews':
-            return EuronewsParserNews()
-
-    def save_data_text(self, text, pk):
-        obj = self.model.objects.get(id = pk)
-        obj.date = text['date']
-        obj.text = text['text']
-        obj.save()
-
-    def parse_text(self, obj):
-        parser = self.get_parser(str(obj.resource.title))
-        if parser:
-            url = obj.url
-            text = parser.get_news_text(url)
-            if text:
-                return self.save_data_text(text, obj.id)
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -172,34 +119,9 @@ class DeleteArticleArchiveView(LoginRequiredMixin, RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-class UpdateArticleView(LoginRequiredMixin, RedirectView):
+class UpdateArticleView(LoginRequiredMixin, ParserMixin, RedirectView):
     model = Articles
     pattern_name = "parse:article"
-
-    @staticmethod
-    def get_parser(resource):
-        if resource == 'Другие ресурсы':
-            return
-        elif resource == 'Sputnik Беларусь':
-            return SputnikParserNews()
-        elif resource == 'Lenta Новости':
-            return LentaParserNews()
-        elif resource == 'Euronews':
-            return EuronewsParserNews()
-
-    def save_data_text(self, text, pk):
-        obj = self.model.objects.get(id = pk)
-        obj.date = text['date']
-        obj.text = text['text']
-        obj.save()
-
-    def parse_text(self, obj):
-        parser = self.get_parser(str(obj.resource.title))
-        if parser:
-            url = obj.url
-            text = parser.get_news_text(url)
-            if text:
-                return self.save_data_text(text, obj.id)
 
     def get_redirect_url(self, *args, **kwargs):
         obj = self.model.objects.get(id = self.kwargs.get('pk'))
