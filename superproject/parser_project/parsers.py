@@ -33,13 +33,7 @@ class BaseParser:
         "accept": "*/*",
     }
 
-    @staticmethod
-    def safe_url(link: str) -> str:
-        url = link.strip()
-        return url
-
-    def get_html(self, link: str) -> Optional[httpx.Response]:
-        url = self.safe_url(link)
+    def get_html(self, url: str) -> Optional[httpx.Response]:
         headers = self.HEADERS
         try:
             response = httpx.get(url, headers = headers)
@@ -105,7 +99,7 @@ class UniversalParser(BaseParser):
             text_list = []
             count = 0
             for string in body.stripped_strings:
-                if count == 150:
+                if count == 100:
                     break
                 if len(string) > 7:
                     if 'https' not in string and '@' not in string:

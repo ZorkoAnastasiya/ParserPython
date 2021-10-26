@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+    {{title}}: {{block.super}}
+
+{% endblock %}
+
+{% block sidebar %}
+{% include 'include/_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+
+<h1>{{header}}</h1>
+<br>
+<form method="post">
+
+    {% csrf_token %}
+
+    {{form.as_p}}
+
+    <div class="d-grid gap-2">
+        <button class="btn btn-primary" type="submit">Добавить</button>
+        <br>
+    </div>
+</form>
+
+{% endblock %}

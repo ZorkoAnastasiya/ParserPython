@@ -1,6 +1,13 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django import forms
-from parser_project.models import User
+from parser_project.models import User, Articles
+
+
+class AddUrlForm(forms.ModelForm):
+    class Meta:
+        model = Articles
+        fields = ["url"]
+        widgets = {"url": forms.URLInput(attrs = {"class": "form-control"})}
 
 
 class UserSignupForm(UserCreationForm):

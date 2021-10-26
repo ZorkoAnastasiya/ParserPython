@@ -5,9 +5,10 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.views.generic import FormView, CreateView, ListView, DetailView, RedirectView
 from django.contrib.auth import authenticate, login
-from parser_project.forms import UserSignupForm, UserLoginForm
+from parser_project.forms import UserSignupForm, UserLoginForm, AddUrlForm
 from parser_project.models import Articles, Resources, User
-from parser_project.parsers import SputnikParserNews, LentaParserNews, EuronewsParserNews
+from parser_project.parsers import SputnikParserNews, LentaParserNews, EuronewsParserNews, UniversalParser
+from datetime import datetime
 
 
 class UserSignupView(SuccessMessageMixin, FormView):
@@ -206,5 +207,26 @@ class UpdateArticleView(LoginRequiredMixin, RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-class AddUrlView(CreateView):
-    pass
+class AddUrlView(LoginRequiredMixin, CreateView):
+    form_class = AddUrlForm
+    template_name = "parser_project/add_url.html"
+    extra_context = {"title": "Добавить ссылку", "header": "Новая ссылка"}
+    login_url = "parse:article"
+
+    def form_valid(self, form):
+        obj = form.save(commit = False)
+        parser = UniversalParser()
+        article = parser.parse_html(obj.url)
+        res = Resources.objects.get(title = "Другие ресурсы")
+        obj.resource_id = res.id
+        if article:
+            obj.date = article["date"]
+            obj.title = article["title"]
+            obj.url = article["url"]
+            obj.text = article["text"]
+        else:
+            obj.date = datetime.today()
+            obj.title = "Информация не найдена"
+            obj.text = "Попробуйте обновить данные позже"
+        obj.save()
+        return super().form_valid(form)
