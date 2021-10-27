@@ -1,12 +1,12 @@
 # ParserPython
 
-##### _About the project:_
+#### _About the project:_
 
 __ParserPython__ is a tutorial project designed to learn how to parse data, store and present that data using __Django__ framework technologies.
 
 ---
 
-##### _The project is a website with the following functions:_
+#### _The project is a website with the following functions:_
 
 * registration and authorization of users;
 * getting a list of news from supported resources;
@@ -18,7 +18,7 @@ __ParserPython__ is a tutorial project designed to learn how to parse data, stor
 
 ---
 
-##### _Applied technology stack:_
+#### _Applied technology stack:_
 
 * _Python_
 * _HTML_
@@ -29,7 +29,7 @@ __ParserPython__ is a tutorial project designed to learn how to parse data, stor
 
 ---
 
-#####_Installing and running the project:_
+#### _Installing and running the project:_
 
 1.  Create a virtual environment
 2. Install packages from requirements.txt file
