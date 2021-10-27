@@ -92,6 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
+    SECRET_KEY = '1'
 
 
 # Internationalization
@@ -99,7 +100,7 @@ if DEBUG:
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'europe/moscow'
 
 USE_I18N = True
 
@@ -135,4 +136,4 @@ CORS_ALLOW_HEADERS = [
 ]
 
 LOGIN_REDIRECT_URL = reverse_lazy("parse:home")
-LOGOUT_REDIRECT_URL = reverse_lazy("signup")
+LOGOUT_REDIRECT_URL = reverse_lazy("login")

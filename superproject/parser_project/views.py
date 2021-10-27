@@ -125,7 +125,16 @@ class UpdateArticleView(LoginRequiredMixin, ParserMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         obj = self.model.objects.get(id = self.kwargs.get('pk'))
-        self.parse_text(obj)
+        if str(obj.resource.title) != "Другие ресурсы":
+            self.parse_text(obj)
+        else:
+            parser = UniversalParser()
+            article = parser.parse_html(obj.url)
+            if article:
+                obj.title = article["title"]
+                obj.text = article["text"]
+                obj.save()
+                return super().get_redirect_url(*args, **kwargs)
         return super().get_redirect_url(*args, **kwargs)
 
 
