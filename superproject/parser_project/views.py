@@ -13,6 +13,9 @@ from django.views.generic import FormView, CreateView, ListView, DetailView, Red
 
 
 class UserSignupView(SuccessMessageMixin, FormView):
+    """
+    User registration.
+    """
     form_class = UserSignupForm
     template_name = "parser_project/signup.html"
     success_url = reverse_lazy("parse:home")
@@ -33,11 +36,17 @@ class UserSignupView(SuccessMessageMixin, FormView):
 
 
 class UserLoginView(LoginView):
+    """
+    User authorization.
+    """
     form_class = UserLoginForm
     template_name = "parser_project/login.html"
 
 
 class AllResourcesView(LoginRequiredMixin, ListView):
+    """
+    Presentation of all news from all resources.
+    """
     model = Articles
     template_name = "parser_project/all_resources.html"
     extra_context = {
@@ -48,6 +57,9 @@ class AllResourcesView(LoginRequiredMixin, ListView):
 
 
 class ResourceNewsView(LoginRequiredMixin, ParserMixin, ListView):
+    """
+    Presentation of news from only one specific resource.
+    """
     model = Articles
     template_name = "parser_project/all_resources.html"
     paginate_by = 20
@@ -66,6 +78,9 @@ class ResourceNewsView(LoginRequiredMixin, ParserMixin, ListView):
 
 
 class UserArchiveView(LoginRequiredMixin, ListView):
+    """
+    Submission of only articles saved by the user to the archive.
+    """
     model = Articles
     template_name = "parser_project/all_resources.html"
     paginate_by = 20
@@ -80,6 +95,9 @@ class UserArchiveView(LoginRequiredMixin, ListView):
 
 
 class ArticlesView(LoginRequiredMixin, ParserMixin, DetailView):
+    """
+    Submission of one specific article.
+    """
     model = Articles
     template_name = "parser_project/article.html"
 
@@ -101,6 +119,9 @@ class ArticlesView(LoginRequiredMixin, ParserMixin, DetailView):
 
 
 class AddArticleArchiveView(LoginRequiredMixin, RedirectView):
+    """
+    Adding an article to the archive.
+    """
     pattern_name = "parse:article"
 
     def get_redirect_url(self, *args, **kwargs):
@@ -110,6 +131,9 @@ class AddArticleArchiveView(LoginRequiredMixin, RedirectView):
 
 
 class DeleteArticleArchiveView(LoginRequiredMixin, RedirectView):
+    """
+    Removing an article from the archive.
+    """
     pattern_name = "parse:article"
 
     def get_redirect_url(self, *args, **kwargs):
@@ -120,6 +144,9 @@ class DeleteArticleArchiveView(LoginRequiredMixin, RedirectView):
 
 
 class UpdateArticleView(LoginRequiredMixin, ParserMixin, RedirectView):
+    """
+    Updating the article. Re-parsing the HTML page.
+    """
     model = Articles
     pattern_name = "parse:article"
 
@@ -139,6 +166,10 @@ class UpdateArticleView(LoginRequiredMixin, ParserMixin, RedirectView):
 
 
 class AddUrlView(LoginRequiredMixin, CreateView):
+    """
+    Adding a user link and parsing the HTML page at the specified address.
+    Saving the received data.
+    """
     form_class = AddUrlForm
     template_name = "parser_project/add_url.html"
     extra_context = {"title": "Добавить ссылку", "header": "Новая ссылка"}

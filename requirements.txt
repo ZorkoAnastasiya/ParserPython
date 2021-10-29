@@ -1,3 +1,4 @@
+devtools
 pytz
 beautifulsoup4
 httpx

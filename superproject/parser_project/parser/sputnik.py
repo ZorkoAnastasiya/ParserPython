@@ -2,14 +2,21 @@ import re
 import pytz
 from datetime import datetime
 from bs4 import BeautifulSoup
-from parser_project.parser.base import AbstractParserNews
+from typing import Optional
+from parser_project.parser.base import AbstractParserNews, ParserTypeList, ParserTypeText
 
 
 class SputnikParserNews(AbstractParserNews):
+    """
+    Parsing the list of news and news articles from the site sputnik.by.
+    """
     HOST = 'https://sputnik.by'
     DATE_FORMAT = '/%Y%m%d/'
 
-    def get_news_list(self) -> list:
+    def get_news_list(self) -> Optional[ParserTypeList]:
+        """
+        Getting a list of news for the current date.
+        """
         url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
@@ -27,7 +34,10 @@ class SputnikParserNews(AbstractParserNews):
                 )
             return news_list
 
-    def get_news_text(self, url: str) -> dict:
+    def get_news_text(self, url: str) -> Optional[ParserTypeText]:
+        """
+        Receiving a news article.
+        """
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
@@ -42,4 +52,5 @@ class SputnikParserNews(AbstractParserNews):
             for item in body:
                 text += item.get_text().replace('.', '. ')
             news = {"date": date_time, "text": text.strip()}
+
             return news

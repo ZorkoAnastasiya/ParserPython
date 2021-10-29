@@ -1,11 +1,16 @@
 from typing import Union
 from parser_project.models import Resources, Articles
+from parser_project.parser.base import ParserTypeText, ParserTypeList
 from parser_project.parser.euronews import EuronewsParserNews
 from parser_project.parser.lenta import LentaParserNews
 from parser_project.parser.sputnik import SputnikParserNews
 
 
 class ParserMixin:
+    """
+    Calls parsers and their methods.
+    Saves data obtained as a result of the work of parsers.
+    """
     model = Articles
 
     @staticmethod
@@ -15,6 +20,9 @@ class ParserMixin:
         EuronewsParserNews,
         None
     ]:
+        """
+        Selects a suitable parser.
+        """
         if resource == 'Другие ресурсы':
             return
         elif resource == 'Sputnik Беларусь':
@@ -24,7 +32,12 @@ class ParserMixin:
         elif resource == 'Euronews':
             return EuronewsParserNews()
 
-    def save_data_list(self, news_list: list, pk: int) -> None:
+    def save_data_list(self, news_list: ParserTypeList, pk: int) -> None:
+        """
+        Saves the received news headlines,
+        links to articles and the resource from which they were retrieved.
+        Saves the current date as "article date".
+        """
         for item in news_list:
             if not self.model.objects.filter(url = item['url']).exists():
                 self.model.objects.create(
@@ -34,13 +47,19 @@ class ParserMixin:
                     resource_id = pk
                 )
 
-    def save_data_text(self, text: dict, pk: int) -> None:
+    def save_data_text(self, text: ParserTypeText, pk: int) -> None:
+        """
+        Saves the text of the article and updates the date the article was written.
+        """
         obj = self.model.objects.get(id = pk)
         obj.date = text['date']
         obj.text = text['text']
         obj.save()
 
-    def parse_news_list(self, pk: int)-> Union[list, int, None]:
+    def parse_news_list(self, pk: int)-> None:
+        """
+        Parses the HTML page with a list of news for the current date.
+        """
         obj = Resources.objects.get(id = pk)
         parser = self.get_parser(str(obj.title))
         if parser:
@@ -48,10 +67,12 @@ class ParserMixin:
             if news_list:
                 return self.save_data_list(news_list, pk)
 
-    def parse_text(self, obj) -> Union[dict, int, None]:
+    def parse_text(self, obj: Articles) -> None:
+        """
+        Parses the HTML page with the news text.
+        """
         parser = self.get_parser(str(obj.resource.title))
         if parser:
-            url = obj.url
-            text = parser.get_news_text(url)
+            text = parser.get_news_text(obj.url)
             if text:
-                return self.save_data_text(text, obj.id)
+                return self.save_data_text(text, obj.pk)

@@ -1,16 +1,22 @@
 import re
 import pytz
-from typing import Union
+from typing import Optional
 from datetime import datetime
 from bs4 import BeautifulSoup
-from parser_project.parser.base import AbstractParserNews
+from parser_project.parser.base import AbstractParserNews, ParserTypeText, ParserTypeList
 
 
 class EuronewsParserNews(AbstractParserNews):
+    """
+    Parsing the list of news and news articles from the site ru.euronews.com.
+    """
     HOST = 'https://ru.euronews.com'
     DATE_FORMAT = '/%Y/%m/%d/'
 
-    def get_news_list(self) -> Union[dict, list]:
+    def get_news_list(self) -> Optional[ParserTypeList]:
+        """
+        Getting a list of news for the current date.
+        """
         url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
@@ -28,16 +34,21 @@ class EuronewsParserNews(AbstractParserNews):
                 )
             return news_list
 
-    def get_news_text(self, url: str) -> dict:
+    def get_news_text(self, url: str) -> Optional[ParserTypeText]:
+        """
+        Receiving a news article.
+        """
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
             date = soup.find('time').get_text()
             dt = re.search(r'\d{2}/\d{2}/\d{4}', date).group(0)
+
             try:
                 tm = re.search(r'\d{2}:\d{2}', date).group(0)
             except AttributeError:
                 tm = '00:00'
+
             dt_tm = f"{dt} {tm}"
             date_time = datetime.strptime(dt_tm, '%d/%m/%Y %H:%M')
             body = soup.find_all('div', class_ = 'c-article-content js-article-content')
@@ -47,4 +58,5 @@ class EuronewsParserNews(AbstractParserNews):
             for item in body:
                 text = item.get_text().replace('.', '. ')
             news_text = {"date": date_time, "text": text.strip()}
+
             return news_text

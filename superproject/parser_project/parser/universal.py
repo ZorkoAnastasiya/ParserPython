@@ -2,12 +2,19 @@ import re
 import pytz
 from datetime import datetime
 from bs4 import BeautifulSoup
-from parser_project.parser.base import BaseParser
+from typing import Optional
+from parser_project.parser.base import BaseParser, ParserTypeText
 
 
 class UniversalParser(BaseParser):
+    """
+    Searches for the title, text and date of any HTML page.
+    """
 
-    def get_date(self, text: str) -> datetime:
+    def get_date(self, text: str) -> Optional[datetime]:
+        """
+        Searches for a date in the text and, if found, converts it to a datetime object.
+        """
         date_regex = [
             (
                 r'(\d{1,2})\s+([а-я]*)\s+(\d{4})',
@@ -40,7 +47,10 @@ class UniversalParser(BaseParser):
                 date = item[1](dt)
                 return date
 
-    def parse_html(self, url: str) -> dict:
+    def parse_html(self, url: str) -> Optional[ParserTypeText]:
+        """
+        Parses the HTML page.
+        """
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
@@ -64,4 +74,5 @@ class UniversalParser(BaseParser):
                 date = self.get_date(text)
             if not date:
                 date = datetime.now(pytz.utc)
+
             return {"date": date, "title": title, "url": url, "text": text}

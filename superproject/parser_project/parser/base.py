@@ -1,14 +1,19 @@
 import httpx
-import logging
+from devtools import debug
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Union
 
-
-logging.basicConfig(level=logging.INFO)
+ParserTypeList = List[Dict[str, Union[datetime, str]]]
+ParserTypeText = Dict[str, Union[datetime, str]]
 
 
 class BaseParser:
+    """
+    Helper class for creating parsers.
+    Requests Html pages.
+    Contains a dictionary for converting the month name to numbers.
+    """
 
     MONTH_DICT = {
         "январь": 1, "января": 1,
@@ -33,34 +38,56 @@ class BaseParser:
     }
 
     def get_html(self, url: str) -> Optional[httpx.Response]:
+        """
+        It takes an url as a parameter and sends a request to the specified path.
+        Returns:
+        httpx.response if the status code is 200;
+        None if an error occurs or the status code is not 200
+        """
         headers = self.HEADERS
         try:
             response = httpx.get(url, headers = headers)
             if response.status_code == 200:
                 return response
-            logging.info(response.status_code)
+            debug(f'Completed with code: {response.status_code}')
         except (httpx.ConnectError, httpx.ConnectTimeout) as err:
-            logging.error(err.__doc__)
+            debug(f'Work completed with error: {err}')
             return
 
 
 class AbstractParserNews(BaseParser, ABC):
+    """
+    Helper class for creating news parsers.
+    """
+
     HOST = ''
     DATE_FORMAT = ''
 
     def get_date_today(self) -> str:
+        """
+        Retrieves the current date and converts it to a string in the specified format.
+        """
         dt = datetime.today().date()
         date = dt.strftime(self.DATE_FORMAT)
         return date
 
     def get_url_news_list(self) -> str:
+        """
+        Creates a link by concatenating hostname and date format.
+        """
         url = f"{self.HOST}{self.get_date_today()}"
         return url
 
     @abstractmethod
-    def get_news_list(self) -> List[dict]:
+    def get_news_list(self) -> Optional[ParserTypeList]:
+        """
+        Getting a list of news.
+        """
         pass
 
     @abstractmethod
-    def get_news_text(self, url: str) -> dict:
+    def get_news_text(self, url: str) -> Optional[ParserTypeText]:
+        """
+        Receiving news text.
+        """
         pass

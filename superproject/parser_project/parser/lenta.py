@@ -1,20 +1,29 @@
 import re
 import pytz
 from datetime import datetime
-from typing import Union
+from typing import Optional
 from bs4 import BeautifulSoup
-from parser_project.parser.base import AbstractParserNews
+from parser_project.parser.base import AbstractParserNews, ParserTypeList, ParserTypeText
 
 
 class LentaParserNews(AbstractParserNews):
+    """
+    Parsing the list of news and news articles from the site lenta.ru.
+    """
     HOST = 'https://lenta.ru'
     DATE_FORMAT = '/%Y/%m/%d/'
 
-    def get_url_news_list(self):
+    def get_url_news_list(self) -> str:
+        """
+        Overriding the parent method to generate the correct link.
+        """
         url = f"{self.HOST}/news{self.get_date_today()}"
         return url
 
-    def get_news_list(self) -> Union[list, dict]:
+    def get_news_list(self) -> Optional[ParserTypeList]:
+        """
+        Getting a list of news for the current date.
+        """
         url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
@@ -33,7 +42,10 @@ class LentaParserNews(AbstractParserNews):
                 )
             return news_list
 
-    def get_news_text(self, url: str) -> dict:
+    def get_news_text(self, url: str) -> Optional[ParserTypeText]:
+        """
+        Receiving a news article.
+        """
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
@@ -51,4 +63,5 @@ class LentaParserNews(AbstractParserNews):
             preview = soup.find('div', class_ = 'b-topic__title-yandex').get_text()
             text = f"{preview}. {body}"
             news_text = {"date": date_time, "text": text}
+
             return news_text
