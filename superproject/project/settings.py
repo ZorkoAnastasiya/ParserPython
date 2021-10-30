@@ -1,5 +1,6 @@
 import os
 import dotenv
+import django_heroku
 import dj_database_url
 from pathlib import Path
 
@@ -137,3 +138,6 @@ CORS_ALLOW_HEADERS = [
 
 LOGIN_REDIRECT_URL = reverse_lazy("parse:home")
 LOGOUT_REDIRECT_URL = reverse_lazy("login")
+
+if not DEBUG:
+    django_heroku.settings(locals())
