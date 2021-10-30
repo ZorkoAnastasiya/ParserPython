@@ -25,7 +25,7 @@
                 <p class="card-text">{{object.text|linebreaks}}</p>
 
                 <p align="right">
-                    <a href={{object.url}} class="btn btn-outline-secondary">Перейти на источник</a>
+                    <a href={{object.url}} class="btn btn-outline-secondary" style="float:left">Перейти на источник</a>
                     {% if archive == request.user.id %}
                     <a href="{% url 'parse:delete_archive' object.pk %}" class="btn btn-outline-danger">Удалить из архива</a>
                     {% else %}
