@@ -49,7 +49,8 @@ class BaseParser:
             response = httpx.get(url, headers = headers)
             if response.status_code == 200:
                 return response
-            debug(f'Completed with code: {response.status_code}')
+            res = f'Completed with code: {response.status_code}'
+            debug(res)
         except (httpx.ConnectError, httpx.ConnectTimeout) as err:
             debug(f'Work completed with error: {err}')
             return

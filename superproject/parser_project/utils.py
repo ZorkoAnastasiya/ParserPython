@@ -1,4 +1,5 @@
 from typing import Union
+from devtools import debug
 from parser_project.models import Resources, Articles
 from parser_project.parser.base import ParserTypeText, ParserTypeList
 from parser_project.parser.euronews import EuronewsParserNews
@@ -30,6 +31,7 @@ class ParserMixin:
         elif resource == 'Lenta Новости':
             return LentaParserNews()
         elif resource == 'Euronews':
+            debug(resource)
             return EuronewsParserNews()
 
     def save_data_list(self, news_list: ParserTypeList, pk: int) -> None:
@@ -63,6 +65,7 @@ class ParserMixin:
         obj = Resources.objects.get(id = pk)
         parser = self.get_parser(str(obj.title))
         if parser:
+            debug(parser)
             news_list = parser.get_news_list()
             if news_list:
                 return self.save_data_list(news_list, pk)
