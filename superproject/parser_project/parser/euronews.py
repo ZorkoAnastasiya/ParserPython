@@ -3,7 +3,6 @@ import pytz
 from typing import Optional
 from datetime import datetime
 from bs4 import BeautifulSoup
-from devtools import debug
 from parser_project.parser.base import AbstractParserNews, ParserTypeText, ParserTypeList
 
 
@@ -19,7 +18,6 @@ class EuronewsParserNews(AbstractParserNews):
         Getting a list of news for the current date.
         """
         url = self.get_url_news_list()
-        debug(url)
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
