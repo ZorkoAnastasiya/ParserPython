@@ -51,7 +51,8 @@ class BaseParser:
                 return response
             result = f'Completed with code: {response.status_code}'
             head = response.headers
-            debug(result, head)
+            text = response.text
+            debug(result, head, text)
         except (httpx.ConnectError, httpx.ConnectTimeout) as err:
             error = f'Work completed with error: {err}'
             debug(error)
