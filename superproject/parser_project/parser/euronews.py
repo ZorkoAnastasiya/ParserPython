@@ -12,7 +12,7 @@ class EuronewsParserNews(AbstractParserNews):
     Parsing the list of news and news articles from the site ru.euronews.com.
     """
     HOST = 'https://ru.euronews.com'
-    DATE_FORMAT = '/%Y/%m/%d/'
+    DATE_FORMAT = '/%Y/%m/%d'
 
     def get_news_list(self) -> Optional[ParserTypeList]:
         """
