@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Optional, List, Dict, Union
 
+
 ParserTypeList = List[Dict[str, Union[datetime, str]]]
 ParserTypeText = Dict[str, Union[datetime, str]]
 
@@ -58,12 +59,9 @@ class BaseParser:
             head = response.headers
             text = response.text
             debug(result, head, text)
-        except (httpx.ConnectError, httpx.ConnectTimeout) as err:
+        except (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout) as err:
             error = f'Work completed with error: {err}'
             debug(error)
-            return
-        except Exception as err:
-            debug(err)
             return
 
 

@@ -1,4 +1,5 @@
 from typing import Union
+from django.shortcuts import get_object_or_404
 from parser_project.models import Resources, Articles
 from parser_project.parser.base import ParserTypeText, ParserTypeList
 from parser_project.parser.euronews import EuronewsParserNews
@@ -60,7 +61,7 @@ class ParserMixin:
         """
         Parses the HTML page with a list of news for the current date.
         """
-        obj = Resources.objects.get(id = pk)
+        obj = get_object_or_404(Resources, id = pk)
         parser = self.get_parser(str(obj.title))
         if parser:
             news_list = parser.get_news_list()

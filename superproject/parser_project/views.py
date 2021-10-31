@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login
 from parser_project.forms import UserSignupForm, UserLoginForm, AddUrlForm
@@ -103,7 +104,7 @@ class ArticlesView(LoginRequiredMixin, ParserMixin, DetailView):
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
-        obj = self.model.objects.get(id = pk)
+        obj = get_object_or_404(self.model, id = pk)
         if not obj.text:
             self.parse_text(obj)
         return super().get_queryset()
@@ -125,7 +126,7 @@ class AddArticleArchiveView(LoginRequiredMixin, RedirectView):
     pattern_name = "parse:article"
 
     def get_redirect_url(self, *args, **kwargs):
-        obj = Articles.objects.get(id = self.kwargs.get('pk'))
+        obj = get_object_or_404(Articles, id = self.kwargs.get('pk'))
         obj.users.add(self.request.user.id)
         return super().get_redirect_url(*args, **kwargs)
 
@@ -137,7 +138,7 @@ class DeleteArticleArchiveView(LoginRequiredMixin, RedirectView):
     pattern_name = "parse:article"
 
     def get_redirect_url(self, *args, **kwargs):
-        obj = Articles.objects.get(id=self.kwargs.get('pk'))
+        obj = get_object_or_404(Articles, id=self.kwargs.get('pk'))
         user = User.objects.get(id=self.request.user.id)
         user.articles_set.remove(obj)
         return super().get_redirect_url(*args, **kwargs)
@@ -151,7 +152,7 @@ class UpdateArticleView(LoginRequiredMixin, ParserMixin, RedirectView):
     pattern_name = "parse:article"
 
     def get_redirect_url(self, *args, **kwargs):
-        obj = self.model.objects.get(id = self.kwargs.get('pk'))
+        obj = get_object_or_404(self.model, id = self.kwargs.get('pk'))
         if str(obj.resource.title) != "Другие ресурсы":
             self.parse_text(obj)
         else:
