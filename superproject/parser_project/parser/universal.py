@@ -17,14 +17,6 @@ class UniversalParser(BaseParser):
         """
         date_regex = [
             (
-                r'(\d{1,2})\s+([а-я]*)\s+(\d{4})',
-                lambda x: datetime(
-                    int(x.group(3)),
-                    self.MONTH_DICT.get(x.group(2).lower()),
-                    int(x.group(1)),
-                )
-            ),
-            (
                 r'(\d{2})[./](\d{2})[./](\d{4})',
                 lambda x: datetime(
                     int(x.group(3)),
@@ -38,6 +30,14 @@ class UniversalParser(BaseParser):
                     int(x.group(1)),
                     int(x.group(2)),
                     int(x.group(3)),
+                )
+            ),
+            (
+                r'(\d{1,2})\s+([а-я]*)\s+(\d{4})',
+                lambda x: datetime(
+                    int(x.group(3)),
+                    self.MONTH_DICT.get(x.group(2).lower()),
+                    int(x.group(1)),
                 )
             ),
         ]
