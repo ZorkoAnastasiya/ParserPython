@@ -3,6 +3,7 @@ import pytz
 from datetime import datetime
 from bs4 import BeautifulSoup
 from typing import Optional
+from devtools import debug
 from parser_project.parser.base import BaseParser, ParserTypeText
 
 
@@ -53,26 +54,31 @@ class UniversalParser(BaseParser):
         """
         html = self.get_html(url)
         if html:
-            soup = BeautifulSoup(html, 'lxml')
-            title = soup.find('title').get_text()
-            body = soup.find('body')
-            text_list = []
-            count = 0
-            for string in body.stripped_strings:
-                if count == 200:
-                    break
-                if len(string) > 7:
-                    if 'https' not in string and '@' not in string:
-                        if string not in text_list:
-                            text_list.append(string.replace('\xa0', ' '))
-                            count += 1
-            text = ''
-            for string in text_list:
-                text += f"{string} "
-            date = self.get_date(title)
-            if not date:
-                date = self.get_date(text)
-            if not date:
-                date = datetime.now(pytz.utc)
+            try:
+                soup = BeautifulSoup(html, 'lxml')
+                title = soup.find('title').get_text()
+                body = soup.find('body')
+                text_list = []
+                count = 0
+                for string in body.stripped_strings:
+                    if count == 200:
+                        break
+                    if len(string) > 7:
+                        if 'https' not in string and '@' not in string:
+                            if string not in text_list:
+                                text_list.append(string.replace('\xa0', ' '))
+                                count += 1
+                text = ''
+                for string in text_list:
+                    text += f"{string} "
+                date = self.get_date(title)
+                if not date:
+                    date = self.get_date(text)
+                if not date:
+                    date = datetime.now(pytz.utc)
+                return {"date": date, "title": title, "url": url, "text": text}
 
-            return {"date": date, "title": title, "url": url, "text": text}
+            except AttributeError as err:
+                error = f"Completed with error: {err}"
+                debug(error)
+                return

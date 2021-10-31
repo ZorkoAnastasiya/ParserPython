@@ -189,6 +189,6 @@ class AddUrlView(LoginRequiredMixin, CreateView):
         else:
             obj.date = datetime.today()
             obj.title = "Информация не найдена"
-            obj.text = "Попробуйте обновить данные позже"
+            obj.text = "Попробуйте обновить данные позже или перейти на источник"
         obj.save()
         return super().form_valid(form)

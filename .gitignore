@@ -1,6 +1,9 @@
 .idea/
 /venv/
+.venv/
+.vscode/
 **/__pycache__/
 .env
 **/db.sqlite3
 superproject/staticfiles/
+superproject/.mypy_cache/

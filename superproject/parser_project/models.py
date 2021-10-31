@@ -49,4 +49,4 @@ class Articles(models.Model):
     class Meta:
         verbose_name = "статья"
         verbose_name_plural = "статьи"
-        ordering = ["-date", "-id"]
+        ordering = ["-date", "id"]

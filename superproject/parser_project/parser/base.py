@@ -62,6 +62,9 @@ class BaseParser:
             error = f'Work completed with error: {err}'
             debug(error)
             return
+        except Exception as err:
+            debug(err)
+            return
 
 
 class AbstractParserNews(BaseParser, ABC):
