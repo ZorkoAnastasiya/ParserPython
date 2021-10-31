@@ -47,6 +47,10 @@ class BaseParser:
         headers = self.HEADERS
         try:
             response = httpx.get(url, headers = headers)
+            if response.status_code == 301 or 302:
+                url = response.headers['location']
+                debug(url)
+                response = httpx.get(url, headers = headers)
             if response.status_code == 200:
                 return response
             result = f'Completed with code: {response.status_code}'
