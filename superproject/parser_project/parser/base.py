@@ -47,8 +47,8 @@ class BaseParser:
         headers = self.HEADERS
         try:
             response = httpx.get(url, headers = headers)
-            if response.status_code == 301 or 302:
-                url = response.headers['location']
+            if response.status_code == 301 or response.status_code == 302:
+                url = response.headers.get('location')
                 debug(url)
                 response = httpx.get(url, headers = headers)
             if response.status_code == 200:
