@@ -59,7 +59,7 @@ class UniversalParser(BaseParser):
             text_list = []
             count = 0
             for string in body.stripped_strings:
-                if count == 100:
+                if count == 200:
                     break
                 if len(string) > 7:
                     if 'https' not in string and '@' not in string:

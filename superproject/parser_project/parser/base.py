@@ -49,7 +49,8 @@ class BaseParser:
             response = httpx.get(url, headers = headers)
             if response.status_code == 301 or response.status_code == 302:
                 url = response.headers.get('location')
-                debug(url)
+                redirect = f'Redirect: {url}'
+                debug(redirect)
                 response = httpx.get(url, headers = headers)
             if response.status_code == 200:
                 return response
