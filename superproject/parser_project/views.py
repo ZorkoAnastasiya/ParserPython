@@ -158,10 +158,10 @@ class UpdateArticleView(LoginRequiredMixin, ParserMixin, RedirectView):
             parser = UniversalParser()
             article = parser.parse_html(obj.url)
             if article:
+                obj.date = article["date"]
                 obj.title = article["title"]
                 obj.text = article["text"]
                 obj.save()
-                return super().get_redirect_url(*args, **kwargs)
         return super().get_redirect_url(*args, **kwargs)
 
 
