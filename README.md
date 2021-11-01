@@ -1,5 +1,7 @@
 # ParserPython
 
+[View project](https://parser-py.herokuapp.com/)
+
 #### _About the project:_
 
 __ParserPython__ is a tutorial project designed to learn how to parse data, store and present that data using __Django__ framework technologies.
@@ -31,19 +33,18 @@ __ParserPython__ is a tutorial project designed to learn how to parse data, stor
 
 #### _Installing and running the project:_
 
-1.  Create a virtual environment
-2. Install packages from requirements.txt file
-3. Set the environment variable DEBUG (True - for local launch)
-4. Add the environment variable DATABASE_URL, indicating the url to the connected database
-5. Apply migrations
+1. Install packages from requirements.txt file
+2. Set the environment variable DEBUG (True - for local launch)
+3. Add the environment variable DATABASE_URL, indicating the url to the connected database
+4. Apply migrations
    ```
     python manage.py migrate
    ```
-6. Create a superuser for access to project administration (the project configuration is set to Russian)
+5. Create a superuser for access to project administration (the project configuration is set to Russian)
    ```
     python manage.py createsuperuser
    ```
-7. Start the local server
+6. Start the local server
    ```
     python manage.py runserver
    ```

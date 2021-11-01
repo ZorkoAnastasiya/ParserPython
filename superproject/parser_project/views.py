@@ -10,7 +10,7 @@ from parser_project.forms import UserSignupForm, UserLoginForm, AddUrlForm
 from parser_project.models import Articles, Resources, User
 from parser_project.parser.universal import UniversalParser
 from parser_project.utils import ParserMixin
-from django.views.generic import FormView, CreateView, ListView, DetailView, RedirectView
+from django.views.generic import FormView, CreateView, ListView, DetailView, RedirectView, DeleteView
 
 
 class UserSignupView(SuccessMessageMixin, FormView):
@@ -115,6 +115,9 @@ class ArticlesView(LoginRequiredMixin, ParserMixin, DetailView):
         for user in obj:
             if self.request.user.id == user.id:
                 context['archive'] = self.request.user.id
+        obj = self.model.objects.get(id = self.kwargs.get('pk'))
+        if self.request.user.id == obj.owner_id:
+            context['owner'] = self.request.user.id
         context['header'] = "Статья"
         return context
 
@@ -182,6 +185,7 @@ class AddUrlView(LoginRequiredMixin, CreateView):
         article = parser.parse_html(obj.url)
         res = Resources.objects.get(title = "Другие ресурсы")
         obj.resource_id = res.id
+        obj.owner = self.request.user
         if article:
             obj.date = article["date"]
             obj.title = article["title"]
@@ -193,3 +197,13 @@ class AddUrlView(LoginRequiredMixin, CreateView):
             obj.text = "Попробуйте обновить данные позже или перейти на источник"
         obj.save()
         return super().form_valid(form)
+
+
+class DeleteUrlView(LoginRequiredMixin, DeleteView):
+    model = Articles
+    template_name = "parser_project/delete_url.html"
+    success_url = reverse_lazy("parse:home")
+    login_url = "parse:article"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(id = self.kwargs.get('pk'))

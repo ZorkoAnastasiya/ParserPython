@@ -26,6 +26,9 @@
 
                 <p align="right">
                     <a href={{object.url}} class="btn btn-outline-secondary" style="float:left">Перейти на источник</a>
+                    {% if owner == request.user.id %}
+                    <a href="{% url 'parse:delete_url' object.pk %}" class="btn btn-outline-danger">Удалить ссылку</a>
+                    {% endif %}
                     {% if archive == request.user.id %}
                     <a href="{% url 'parse:delete_archive' object.pk %}" class="btn btn-outline-danger">Удалить из архива</a>
                     {% else %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+    Удаление: url
+
+{% endblock %}
+
+{% block sidebar %}
+{% include 'include/_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+
+<h1>Удалить: {{object.title}}</h1>
+<br>
+<form method="post">
+
+    {% csrf_token %}
+
+    <h5>Вы уверены?</h5>
+    <br>
+
+    <a href="{% url 'parse:article' object.pk %}" class="btn btn-primary">Назад</a>
+    <button class="btn btn-danger" type="submit">Удалить</button>
+
+</form>
+
+{% endblock %}
