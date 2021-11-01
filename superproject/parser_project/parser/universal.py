@@ -1,5 +1,7 @@
 import re
+import json
 import pytz
+from json import JSONDecodeError
 from datetime import datetime
 from bs4 import BeautifulSoup
 from typing import Optional
@@ -54,8 +56,8 @@ class UniversalParser(BaseParser):
         """
         html = self.get_html(url)
         if html:
+            soup = BeautifulSoup(html, 'lxml')
             try:
-                soup = BeautifulSoup(html, 'lxml')
                 title = soup.find('title').get_text()
                 body = soup.find('body')
                 text_list = []
@@ -79,6 +81,17 @@ class UniversalParser(BaseParser):
                 return {"date": date, "title": title, "url": url, "text": text}
 
             except AttributeError as err:
-                error = f"Completed with error: {err}"
+                error = f"Completed with error: {err.__doc__} {err}"
                 debug(error)
-                return
+
+                try:
+                    body = soup.find('body')
+                    text = json.loads(body.text)
+                    date = datetime.now(pytz.utc)
+                    title = f"JSON object: {url}"
+                    return {"date": date, "title": title, "url": url, "text": text}
+
+                except JSONDecodeError as err:
+                    error = f"Completed with error: {err.__doc__} {err}"
+                    debug(error)
+                    return

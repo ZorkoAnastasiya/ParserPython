@@ -60,7 +60,7 @@ class BaseParser:
             text = response.text
             debug(result, head, text)
         except (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout) as err:
-            error = f'Work completed with error: {err}'
+            error = f'Work completed with error: {err.__doc__} {err}'
             debug(error)
             return
 
