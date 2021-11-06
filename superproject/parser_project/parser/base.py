@@ -2,11 +2,11 @@ import httpx
 from devtools import debug
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Any
 
 
-ParserTypeList = List[Dict[str, Union[datetime, str]]]
-ParserTypeText = Dict[str, Union[datetime, str]]
+ParserTypeList = List[Dict[str, Any]]
+ParserTypeText = Dict[str, Any]
 
 
 class BaseParser:
@@ -45,6 +45,7 @@ class BaseParser:
         httpx.response if the status code is 200;
         None if an error occurs or the status code is not 200
         """
+        result: Optional[httpx.Response] = None
         headers = self.HEADERS
         try:
             response = httpx.get(url, headers = headers)
@@ -54,22 +55,22 @@ class BaseParser:
                 debug(redirect)
                 response = httpx.get(url, headers = headers)
             if response.status_code == 200:
-                return response
-            result = f'Completed with code: {response.status_code}'
+                result = response
+                return result
+            res = f'Completed with code: {response.status_code}'
             head = response.headers
             text = response.text
-            debug(result, head, text)
+            debug(res, head, text)
         except (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout) as err:
             error = f'Work completed with error: {err.__doc__} {err}'
             debug(error)
-            return
+        return result
 
 
 class AbstractParserNews(BaseParser, ABC):
     """
     Helper class for creating news parsers.
     """
-
     HOST = ''
     DATE_FORMAT = ''
 

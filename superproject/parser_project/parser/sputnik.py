@@ -2,7 +2,7 @@ import re
 import pytz
 from datetime import datetime
 from bs4 import BeautifulSoup
-from typing import Optional
+from typing import Optional, Any
 from parser_project.parser.base import AbstractParserNews, ParserTypeList, ParserTypeText
 
 
@@ -17,6 +17,7 @@ class SputnikParserNews(AbstractParserNews):
         """
         Getting a list of news for the current date.
         """
+        result: Optional[ParserTypeList] = None
         url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
@@ -32,25 +33,30 @@ class SputnikParserNews(AbstractParserNews):
                         "url": self.HOST + item.get("href")
                     }
                 )
-            return news_list
+            result = news_list
+        return result
 
     def get_news_text(self, url: str) -> Optional[ParserTypeText]:
         """
         Receiving a news article.
         """
+        result: Optional[ParserTypeText] = None
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
             body = soup.find_all('div', class_ = 'article__text')
             date = soup.find('div', class_ = 'article__info-date').get_text(strip = True)
-            dt = re.search(r'(\d{2})\.(\d{2}).(\d{4})', date).group(0)
-            tm = re.search(r'(\d{2}):(\d{2})', date).group(0)
-            dt_tm = f"{tm} {dt}"
+            dt: Any = re.search(r'(\d{2})\.(\d{2}).(\d{4})', date)
+            tm: Any = re.search(r'(\d{2}):(\d{2})', date)
+            dt_tm = f"{tm.group(0)} {dt.group(0)}"
             date_time = datetime.strptime(dt_tm, '%H:%M %d.%m.%Y')
             preview = soup.find('div', class_ = 'article__announce-text').get_text()
             text = f"{preview} "
             for item in body:
                 text += item.get_text().replace('.', '. ')
-            news = {"date": date_time, "text": text.strip()}
-
-            return news
+            news = {
+                "date": date_time,
+                "text": text.strip()
+            }
+            result = news
+        return result

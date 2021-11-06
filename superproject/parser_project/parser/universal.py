@@ -4,7 +4,7 @@ import pytz
 from json import JSONDecodeError
 from datetime import datetime
 from bs4 import BeautifulSoup
-from typing import Optional
+from typing import Optional, Any, List, Tuple, Callable
 from devtools import debug
 from parser_project.parser.base import BaseParser, ParserTypeText
 
@@ -18,7 +18,8 @@ class UniversalParser(BaseParser):
         """
         Searches for a date in the text and, if found, converts it to a datetime object.
         """
-        date_regex = [
+        result: Optional[datetime] = None
+        date_regex: List[Tuple[str, Callable]] = [
             (
                 r'(\d{2})[./](\d{2})[./](\d{4})',
                 lambda x: datetime(
@@ -39,21 +40,22 @@ class UniversalParser(BaseParser):
                 r'(\d{1,2})\s+([а-я]*)\s+(\d{4})',
                 lambda x: datetime(
                     int(x.group(3)),
-                    self.MONTH_DICT.get(x.group(2).lower()),
+                    self.MONTH_DICT.get(x.group(2).lower()),  # type: ignore
                     int(x.group(1)),
                 )
             ),
         ]
         for item in date_regex:
-            dt = re.search(item[0], text)
-            if dt:
-                date = item[1](dt)
-                return date
+            date: Any = re.search(item[0], text)
+            if date:
+                result = item[1](date)
+        return result
 
     def parse_html(self, url: str) -> Optional[ParserTypeText]:
         """
         Parses the HTML page.
         """
+        result: Optional[ParserTypeText] = None
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
@@ -78,10 +80,15 @@ class UniversalParser(BaseParser):
                     date = self.get_date(text)
                 if not date:
                     date = datetime.now(pytz.utc)
-                return {"date": date, "title": title, "url": url, "text": text}
+                result = {
+                    "date": date,
+                    "title": title,
+                    "url": url,
+                    "text": text,
+                }
 
             except AttributeError as err:
-                error = f"Completed with error: {err.__doc__} {err}"
+                error = f"Completed with AttributeError, trying to find JSON."
                 debug(error)
 
                 try:
@@ -89,9 +96,14 @@ class UniversalParser(BaseParser):
                     text = json.loads(body.text)
                     date = datetime.now(pytz.utc)
                     title = f"JSON object: {url}"
-                    return {"date": date, "title": title, "url": url, "text": text}
+                    result = {
+                        "date": date,
+                        "title": title,
+                        "url": url,
+                        "text": text,
+                    }
 
                 except JSONDecodeError as err:
                     error = f"Completed with error: {err.__doc__} {err}"
                     debug(error)
-                    return
+        return result

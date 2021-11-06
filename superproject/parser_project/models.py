@@ -1,3 +1,4 @@
+from typing import Any
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse_lazy
@@ -7,18 +8,18 @@ User = get_user_model()
 
 
 class Resources(models.Model):
-    objects = models.Manager()
+    objects: Any = models.Manager()
 
-    title = models.CharField(
+    title: Any = models.CharField(
         max_length = 150,
         db_index = True,
         verbose_name = "ресурс"
     )
 
-    def __str__(self):
+    def __str__(self) -> Any:
         return self.title
 
-    def get_absolute_url(self) -> str:
+    def get_absolute_url(self) -> Any:
         return reverse_lazy(
             "parse:resource",
             kwargs = {"resource_id": self.pk})
@@ -29,17 +30,18 @@ class Resources(models.Model):
         ordering = ["id"]
 
 
+# noinspection PyCallingNonCallable
 class Articles(models.Model):
-    objects = models.Manager()
+    objects: Any = models.Manager()
 
-    date = models.DateTimeField()
-    date_update = models.DateTimeField(auto_now = True)
-    title = models.TextField(null = True)
-    text = models.TextField(null = True)
-    url = models.URLField(unique = True)
-    resource = models.ForeignKey(Resources, on_delete = models.PROTECT)
-    users = models.ManyToManyField(User)
-    owner = models.ForeignKey(
+    date: Any = models.DateTimeField()
+    date_update: Any = models.DateTimeField(auto_now = True)
+    title: Any = models.TextField(null = True)
+    text: Any = models.TextField(null = True)
+    url: Any = models.URLField(unique = True)
+    resource: Any = models.ForeignKey(Resources, on_delete = models.PROTECT)
+    users: Any = models.ManyToManyField(User)
+    owner: Any = models.ForeignKey(
         User,
         on_delete = models.CASCADE,
         blank = True,
@@ -47,10 +49,10 @@ class Articles(models.Model):
         related_name = "my_article"
     )
 
-    def __str__(self):
+    def __str__(self) -> Any:
         return self.title
 
-    def get_absolute_url(self) -> str:
+    def get_absolute_url(self) -> Any:
         return reverse_lazy("parse:article", kwargs = {"pk": self.pk})
 
     class Meta:

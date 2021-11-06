@@ -1,6 +1,6 @@
 import re
 import pytz
-from typing import Optional
+from typing import Optional, Any
 from datetime import datetime
 from bs4 import BeautifulSoup
 from parser_project.parser.base import AbstractParserNews, ParserTypeText, ParserTypeList
@@ -17,6 +17,7 @@ class EuronewsParserNews(AbstractParserNews):
         """
         Getting a list of news for the current date.
         """
+        result: Optional[ParserTypeList] = None
         url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
@@ -32,24 +33,27 @@ class EuronewsParserNews(AbstractParserNews):
                         "url": self.HOST + item.get('href')
                     }
                 )
-            return news_list
+            result = news_list
+        return result
 
     def get_news_text(self, url: str) -> Optional[ParserTypeText]:
         """
         Receiving a news article.
         """
+        result: Optional[ParserTypeText] = None
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
             date = soup.find('time').get_text()
-            dt = re.search(r'\d{2}/\d{2}/\d{4}', date).group(0)
+            dt: Any = re.search(r'(\d{2})/(\d{2})/(\d{4})', date)
 
             try:
-                tm = re.search(r'\d{2}:\d{2}', date).group(0)
+                time: Any = re.search(r'(\d{2}):(\d{2})', date)
+                tm = time.group(0)
             except AttributeError:
                 tm = '00:00'
 
-            dt_tm = f"{dt} {tm}"
+            dt_tm = f"{dt.group(0)} {tm}"
             date_time = datetime.strptime(dt_tm, '%d/%m/%Y %H:%M')
             body = soup.find_all('div', class_ = 'c-article-content js-article-content')
             if not body:
@@ -57,6 +61,9 @@ class EuronewsParserNews(AbstractParserNews):
             text = ''
             for item in body:
                 text = item.get_text().replace('.', '. ')
-            news_text = {"date": date_time, "text": text.strip()}
-
-            return news_text
+            news_text = {
+                "date": date_time,
+                "text": text.strip(),
+            }
+            result = news_text
+        return result

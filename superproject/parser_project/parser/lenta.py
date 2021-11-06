@@ -1,7 +1,7 @@
 import re
 import pytz
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any
 from bs4 import BeautifulSoup
 from parser_project.parser.base import AbstractParserNews, ParserTypeList, ParserTypeText
 
@@ -24,6 +24,7 @@ class LentaParserNews(AbstractParserNews):
         """
         Getting a list of news for the current date.
         """
+        result: Optional[ParserTypeList] = None
         url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
@@ -40,28 +41,33 @@ class LentaParserNews(AbstractParserNews):
                         "url": self.HOST + item.get('href')
                     }
                 )
-            return news_list
+            result = news_list
+        return result
 
     def get_news_text(self, url: str) -> Optional[ParserTypeText]:
         """
         Receiving a news article.
         """
+        result: Optional[ParserTypeText] = None
         html = self.get_html(url)
         if html:
             soup = BeautifulSoup(html, 'lxml')
             body = soup.find('div', class_ = 'b-text clearfix js-topic__text').get_text()
             date = soup.find('div', class_ = 'b-topic__info').get_text(strip = True)
-            dt = re.search(r'(\d{2}) ([а-я]*) (\d{4})', date)
-            tm = re.search(r'(\d{2}):(\d{2})', date)
+            dt: Any = re.search(r'(\d{1,2})\s+([а-я]*)\s+(\d{4})', date)
+            tm: Any = re.search(r'(\d{2}):(\d{2})', date)
             date_time = datetime(
                 int(dt.group(3)),
-                self.MONTH_DICT.get(dt.group(2).lower()),
+                self.MONTH_DICT.get(dt.group(2).lower()),  # type: ignore
                 int(dt.group(1)),
                 int(tm.group(1)),
                 int(tm.group(2))
             )
             preview = soup.find('div', class_ = 'b-topic__title-yandex').get_text()
             text = f"{preview}. {body}"
-            news_text = {"date": date_time, "text": text}
-
-            return news_text
+            news_text = {
+                "date": date_time,
+                "text": text
+            }
+            result = news_text
+        return result

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Any
 from django.shortcuts import get_object_or_404
 from parser_project.models import Resources, Articles
 from parser_project.parser.base import ParserTypeText, ParserTypeList
@@ -15,17 +15,12 @@ class ParserMixin:
     model = Articles
 
     @staticmethod
-    def get_parser(resource: str) -> Union[
-        SputnikParserNews,
-        LentaParserNews,
-        EuronewsParserNews,
-        None
-    ]:
+    def get_parser(resource: str) -> Any:
         """
         Selects a suitable parser.
         """
         if resource == 'Другие ресурсы':
-            return
+            return None
         elif resource == 'Sputnik Беларусь':
             return SputnikParserNews()
         elif resource == 'Lenta Новости':
@@ -66,7 +61,7 @@ class ParserMixin:
         if parser:
             news_list = parser.get_news_list()
             if news_list:
-                return self.save_data_list(news_list, pk)
+                self.save_data_list(news_list, pk)
 
     def parse_text(self, obj: Articles) -> None:
         """
@@ -76,4 +71,4 @@ class ParserMixin:
         if parser:
             text = parser.get_news_text(obj.url)
             if text:
-                return self.save_data_text(text, obj.pk)
+                self.save_data_text(text, obj.pk)
