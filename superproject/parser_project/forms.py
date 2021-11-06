@@ -1,31 +1,34 @@
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django import forms
-from parser_project.models import User, Articles
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
+
+from parser_project.models import Articles
+from parser_project.models import User
 
 
 class AddUrlForm(forms.ModelForm):
     class Meta:
         model = Articles
         fields = ["url"]
-        widgets = {"url": forms.URLInput(attrs = {"class": "form-control"})}
+        widgets = {"url": forms.URLInput(attrs={"class": "form-control"})}
 
 
 class UserSignupForm(UserCreationForm):
     username = forms.CharField(
-        label = "Пользователь",
-        widget = forms.TextInput(attrs = {"class": "form-control"})
+        label="Пользователь",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     email = forms.EmailField(
-        label = "Email адрес",
-        widget = forms.EmailInput(attrs = {"class": "form-control"})
+        label="Email адрес",
+        widget=forms.EmailInput(attrs={"class": "form-control"}),
     )
     password1 = forms.CharField(
-        label = "Пароль",
-        widget =forms.PasswordInput(attrs = {"class": "form-control"})
+        label="Пароль",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
     password2 = forms.CharField(
-        label = "Подтверждение пароля",
-        widget =forms.PasswordInput(attrs = {"class": "form-control"})
+        label="Подтверждение пароля",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
 
     class Meta:
@@ -35,10 +38,10 @@ class UserSignupForm(UserCreationForm):
 
 class UserLoginForm(AuthenticationForm):
     username = forms.CharField(
-        label = "Имя Пользователя",
-        widget = forms.TextInput(attrs = {"class": "form-control"})
+        label="Имя Пользователя",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     password = forms.CharField(
-        label = "Пароль",
-        widget = forms.PasswordInput(attrs = {"class": "form-control"})
+        label="Пароль",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )

@@ -1,4 +1,5 @@
 from django import template
+
 from parser_project.models import Resources
 
 register = template.Library()

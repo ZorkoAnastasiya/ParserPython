@@ -1,9 +1,13 @@
+from abc import ABC
+from abc import abstractmethod
+from datetime import datetime
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+
 import httpx
 from devtools import debug
-from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Optional, List, Dict, Any
-
 
 ParserTypeList = List[Dict[str, Any]]
 ParserTypeText = Dict[str, Any]
@@ -17,18 +21,30 @@ class BaseParser:
     """
 
     MONTH_DICT = {
-        "январь": 1, "января": 1,
-        "февраль": 2, "февраля": 2,
-        "март": 3, "марта": 3,
-        "апрель": 4, "апреля": 4,
-        "май": 5, "мая": 5,
-        "июнь": 6, "июня": 6,
-        "июль": 7, "июля": 7,
-        "август": 8, "августа": 8,
-        "сентябрь": 9, "сентября": 9,
-        "октябрь": 10, "октября": 10,
-        "ноябрь": 11, "ноября": 11,
-        "декабрь": 12, "декабря": 12
+        "январь": 1,
+        "января": 1,
+        "февраль": 2,
+        "февраля": 2,
+        "март": 3,
+        "марта": 3,
+        "апрель": 4,
+        "апреля": 4,
+        "май": 5,
+        "мая": 5,
+        "июнь": 6,
+        "июня": 6,
+        "июль": 7,
+        "июля": 7,
+        "август": 8,
+        "августа": 8,
+        "сентябрь": 9,
+        "сентября": 9,
+        "октябрь": 10,
+        "октября": 10,
+        "ноябрь": 11,
+        "ноября": 11,
+        "декабрь": 12,
+        "декабря": 12,
     }
 
     HEADERS = {
@@ -48,21 +64,25 @@ class BaseParser:
         result: Optional[httpx.Response] = None
         headers = self.HEADERS
         try:
-            response = httpx.get(url, headers = headers)
+            response = httpx.get(url, headers=headers)
             if response.status_code == 301 or response.status_code == 302:
-                url = response.headers.get('location')
-                redirect = f'Redirect: {url}'
+                url = response.headers.get("location")
+                redirect = f"Redirect: {url}"
                 debug(redirect)
-                response = httpx.get(url, headers = headers)
+                response = httpx.get(url, headers=headers)
             if response.status_code == 200:
                 result = response
                 return result
-            res = f'Completed with code: {response.status_code}'
+            res = f"Completed with code: {response.status_code}"
             head = response.headers
             text = response.text
             debug(res, head, text)
-        except (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout) as err:
-            error = f'Work completed with error: {err.__doc__} {err}'
+        except (
+            httpx.ConnectError,
+            httpx.ConnectTimeout,
+            httpx.ReadTimeout,
+        ) as err:
+            error = f"Work completed with error: {err.__doc__} {err}"
             debug(error)
         return result
 
@@ -71,8 +91,9 @@ class AbstractParserNews(BaseParser, ABC):
     """
     Helper class for creating news parsers.
     """
-    HOST = ''
-    DATE_FORMAT = ''
+
+    HOST = ""
+    DATE_FORMAT = ""
 
     def get_date_today(self) -> str:
         """

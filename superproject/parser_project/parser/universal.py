@@ -1,12 +1,19 @@
-import re
 import json
-import pytz
-from json import JSONDecodeError
+import re
 from datetime import datetime
+from json import JSONDecodeError
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Tuple
+
+import pytz
 from bs4 import BeautifulSoup
-from typing import Optional, Any, List, Tuple, Callable
 from devtools import debug
-from parser_project.parser.base import BaseParser, ParserTypeText
+
+from parser_project.parser.base import BaseParser
+from parser_project.parser.base import ParserTypeText
 
 
 class UniversalParser(BaseParser):
@@ -21,28 +28,28 @@ class UniversalParser(BaseParser):
         result: Optional[datetime] = None
         date_regex: List[Tuple[str, Callable]] = [
             (
-                r'(\d{2})[./](\d{2})[./](\d{4})',
+                r"(\d{2})[./](\d{2})[./](\d{4})",
                 lambda x: datetime(
                     int(x.group(3)),
                     int(x.group(2)),
                     int(x.group(1)),
-                )
+                ),
             ),
             (
-                r'(\d{4})[./](\d{2})[./](\d{2})',
+                r"(\d{4})[./](\d{2})[./](\d{2})",
                 lambda x: datetime(
                     int(x.group(1)),
                     int(x.group(2)),
                     int(x.group(3)),
-                )
+                ),
             ),
             (
-                r'(\d{1,2})\s+([а-я]*)\s+(\d{4})',
+                r"(\d{1,2})\s+([а-я]*)\s+(\d{4})",
                 lambda x: datetime(
                     int(x.group(3)),
                     self.MONTH_DICT.get(x.group(2).lower()),  # type: ignore
                     int(x.group(1)),
-                )
+                ),
             ),
         ]
         for item in date_regex:
@@ -58,21 +65,21 @@ class UniversalParser(BaseParser):
         result: Optional[ParserTypeText] = None
         html = self.get_html(url)
         if html:
-            soup = BeautifulSoup(html, 'lxml')
+            soup = BeautifulSoup(html, "lxml")
             try:
-                title = soup.find('title').get_text()
-                body = soup.find('body')
+                title = soup.find("title").get_text()
+                body = soup.find("body")
                 text_list = []
                 count = 0
                 for string in body.stripped_strings:
                     if count == 200:
                         break
                     if len(string) > 7:
-                        if 'https' not in string and '@' not in string:
+                        if "https" not in string and "@" not in string:
                             if string not in text_list:
-                                text_list.append(string.replace('\xa0', ' '))
+                                text_list.append(string.replace("\xa0", " "))
                                 count += 1
-                text = ''
+                text = ""
                 for string in text_list:
                     text += f"{string} "
                 date = self.get_date(title)
@@ -92,7 +99,7 @@ class UniversalParser(BaseParser):
                 debug(error)
 
                 try:
-                    body = soup.find('body')
+                    body = soup.find("body")
                     text = json.loads(body.text)
                     date = datetime.now(pytz.utc)
                     title = f"JSON object: {url}"

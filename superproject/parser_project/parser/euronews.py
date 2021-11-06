@@ -1,17 +1,23 @@
 import re
-import pytz
-from typing import Optional, Any
 from datetime import datetime
+from typing import Any
+from typing import Optional
+
+import pytz
 from bs4 import BeautifulSoup
-from parser_project.parser.base import AbstractParserNews, ParserTypeText, ParserTypeList
+
+from parser_project.parser.base import AbstractParserNews
+from parser_project.parser.base import ParserTypeList
+from parser_project.parser.base import ParserTypeText
 
 
 class EuronewsParserNews(AbstractParserNews):
     """
     Parsing the list of news and news articles from the site ru.euronews.com.
     """
-    HOST = 'https://ru.euronews.com'
-    DATE_FORMAT = '/%Y/%m/%d'
+
+    HOST = "https://ru.euronews.com"
+    DATE_FORMAT = "/%Y/%m/%d"
 
     def get_news_list(self) -> Optional[ParserTypeList]:
         """
@@ -21,16 +27,16 @@ class EuronewsParserNews(AbstractParserNews):
         url = self.get_url_news_list()
         html = self.get_html(url)
         if html:
-            soup = BeautifulSoup(html, 'lxml')
-            items = soup.find_all('a', class_ = 'm-object__title__link')
+            soup = BeautifulSoup(html, "lxml")
+            items = soup.find_all("a", class_="m-object__title__link")
             date_time = datetime.now(pytz.utc)
             news_list = []
             for item in items:
                 news_list.append(
                     {
                         "date": date_time,
-                        "title": item.get('title'),
-                        "url": self.HOST + item.get('href')
+                        "title": item.get("title"),
+                        "url": self.HOST + item.get("href"),
                     }
                 )
             result = news_list
@@ -43,24 +49,26 @@ class EuronewsParserNews(AbstractParserNews):
         result: Optional[ParserTypeText] = None
         html = self.get_html(url)
         if html:
-            soup = BeautifulSoup(html, 'lxml')
-            date = soup.find('time').get_text()
-            dt: Any = re.search(r'(\d{2})/(\d{2})/(\d{4})', date)
+            soup = BeautifulSoup(html, "lxml")
+            date = soup.find("time").get_text()
+            dt: Any = re.search(r"(\d{2})/(\d{2})/(\d{4})", date)
 
             try:
-                time: Any = re.search(r'(\d{2}):(\d{2})', date)
+                time: Any = re.search(r"(\d{2}):(\d{2})", date)
                 tm = time.group(0)
             except AttributeError:
-                tm = '00:00'
+                tm = "00:00"
 
             dt_tm = f"{dt.group(0)} {tm}"
-            date_time = datetime.strptime(dt_tm, '%d/%m/%Y %H:%M')
-            body = soup.find_all('div', class_ = 'c-article-content js-article-content')
+            date_time = datetime.strptime(dt_tm, "%d/%m/%Y %H:%M")
+            body = soup.find_all(
+                "div", class_="c-article-content js-article-content"
+            )
             if not body:
-                body = soup.find_all('div', class_ = 'c-article-content')
-            text = ''
+                body = soup.find_all("div", class_="c-article-content")
+            text = ""
             for item in body:
-                text = item.get_text().replace('.', '. ')
+                text = item.get_text().replace(".", ". ")
             news_text = {
                 "date": date_time,
                 "text": text.strip(),

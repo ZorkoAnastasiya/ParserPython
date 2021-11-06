@@ -1,5 +1,7 @@
 from django.contrib import admin
-from parser_project.models import Resources, Articles
+
+from parser_project.models import Articles
+from parser_project.models import Resources
 
 
 @admin.register(Resources)
