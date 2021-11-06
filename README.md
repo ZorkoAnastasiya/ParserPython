@@ -7,7 +7,7 @@
 
 ---
 
-#### _Technologies_
+### _Technologies_
 
 [![pycharm](https://img.shields.io/badge/pycharm-143?style=for-the-badge&logo=pycharm&logoColor=black&color=black&labelColor=green)](https://www.jetbrains.com/ru-ru/pycharm/)
 [![heroku](https://img.shields.io/badge/Heroku-430098?style=for-the-badge&logo=heroku&logoColor=white)](https://devcenter.heroku.com/categories/reference)
@@ -19,13 +19,13 @@
 
 ---
 
-#### _About the project:_
+### _About the project:_
 
 __ParserPython__ is a tutorial project designed to learn how to parse data, store and present that data using __Django__ framework technologies.
 
 ---
 
-#### _The project is a website with the following functions:_
+### _The project is a website with the following functions:_
 
 * registration and authorization of users;
 * getting a list of news from supported resources;
@@ -37,7 +37,7 @@ __ParserPython__ is a tutorial project designed to learn how to parse data, stor
 
 ---
 
-#### _Installing and running the project:_
+### _Installing and running the project:_
 
 1. Install packages from requirements.txt file
 2. Set the environment variable DEBUG (True - for local launch)
