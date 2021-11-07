@@ -134,11 +134,11 @@ class ArticlesView(LoginRequiredMixin, ParserMixin, DetailView):
         self, *, object_list: Any = None, **kwargs: Any
     ) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        obj = self.model.objects.get(id=self.kwargs.get("pk")).users.all()
-        for user in obj:
+        obj = self.model.objects.get(id=self.kwargs.get("pk"))
+        list_obj = obj.users.all()
+        for user in list_obj:
             if self.request.user.pk == user.id:
                 context["archive"] = self.request.user.pk
-        obj = self.model.objects.get(id=self.kwargs.get("pk"))
         if self.request.user.pk == obj.owner_id:
             context["owner"] = self.request.user.pk
         context["header"] = "Статья"

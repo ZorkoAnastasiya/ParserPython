@@ -10,7 +10,7 @@
 [![Lines of code](https://img.shields.io/tokei/lines/github.com/ZorkoAnastasiya/ParserPython)](https://github.com/ZorkoAnastasiya/ParserPython)
 ---
 
-### _Technologies_
+### _Technologies:_
 
 [![pycharm](https://img.shields.io/badge/pycharm-143?style=for-the-badge&logo=pycharm&logoColor=black&color=black&labelColor=green)](https://www.jetbrains.com/ru-ru/pycharm/)
 [![heroku](https://img.shields.io/badge/Heroku-430098?style=for-the-badge&logo=heroku&logoColor=white)](https://devcenter.heroku.com/categories/reference)
