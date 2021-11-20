@@ -45,16 +45,18 @@ __ParserPython__ is a tutorial project designed to learn how to parse data, stor
 1. Install packages from requirements.txt file
 2. Set the environment variable DEBUG (True - for local launch)
 3. Add the environment variable DATABASE_URL, indicating the url to the connected database
-4. Apply migrations
-   ```
-    python manage.py migrate
-   ```
-5. Create a superuser for access to project administration (the project configuration is set to Russian)
-   ```
-    python manage.py createsuperuser
-   ```
-6. Start the local server
-   ```
-    python manage.py runserver
-   ```
+4. Run the following commands from the superproject directory:
+
+    - Apply migrations
+        ```
+        python manage.py migrate
+        ```
+    - Create a superuser for access to project administration (the project configuration is set to Russian)
+        ```
+        python manage.py createsuperuser
+        ```
+    - Start the local server
+        ```
+        python manage.py runserver
+        ```
 ---	
