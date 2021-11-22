@@ -5,7 +5,6 @@ from parser_project.views import AddUrlView
 from parser_project.views import AllResourcesView
 from parser_project.views import ArticlesView
 from parser_project.views import DeleteArticleArchiveView
-from parser_project.views import DeleteUrlView
 from parser_project.views import ResourceNewsView
 from parser_project.views import UpdateArticleView
 from parser_project.views import UserArchiveView
@@ -32,6 +31,5 @@ urlpatterns = [
         DeleteArticleArchiveView.as_view(),
         name="delete_archive",
     ),
-    path("<int:pk>/delete_url", DeleteUrlView.as_view(), name="delete_url"),
     path("<int:pk>/update", UpdateArticleView.as_view(), name="update"),
 ]

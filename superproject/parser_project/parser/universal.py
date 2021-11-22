@@ -55,7 +55,11 @@ class UniversalParser(BaseParser):
         for item in date_regex:
             date: Any = re.search(item[0], text)
             if date:
-                result = item[1](date)
+                try:
+                    result = item[1](date)
+                except ValueError as err:
+                    error = f"Completed with error: {err.__doc__} {err}"
+                    debug(error)
         return result
 
     def parse_html(self, url: str) -> Optional[ParserTypeText]:

@@ -15,7 +15,7 @@
     {% for item in object_list %}
      <div class="card mb-3">
          <div class="card-header">
-             Ресурс: <a href="{{item.resource.get_absolute_url}}">{{item.resource}}</a>
+             Ресурс: {{item.resource}}
          </div>
          <div class="card-body">
                      <a href="{{item.get_absolute_url}}">

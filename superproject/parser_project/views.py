@@ -11,10 +11,9 @@ from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query import QuerySet
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from django.views.generic import DeleteView
 from django.views.generic import DetailView
 from django.views.generic import FormView
 from django.views.generic import ListView
@@ -73,7 +72,11 @@ class AllResourcesView(LoginRequiredMixin, ListView):
     model = Articles
     template_name = "parser_project/all_resources.html"
     extra_context = {"title": "Новости", "header": "Все новости"}
-    paginate_by = 20
+    paginate_by = 10
+
+    def get_queryset(self) -> QuerySet:
+        obj = Resources.objects.get(title="Другие ресурсы")
+        return super().get_queryset().exclude(resource_id = obj.pk)
 
 
 class ResourceNewsView(LoginRequiredMixin, ParserMixin, ListView):
@@ -83,7 +86,7 @@ class ResourceNewsView(LoginRequiredMixin, ParserMixin, ListView):
 
     model = Articles
     template_name = "parser_project/all_resources.html"
-    paginate_by = 20
+    paginate_by = 10
 
     def get_queryset(self) -> QuerySet:
         pk = self.kwargs.get("resource_id")
@@ -107,7 +110,7 @@ class UserArchiveView(LoginRequiredMixin, ListView):
 
     model = Articles
     template_name = "parser_project/all_resources.html"
-    paginate_by = 20
+    paginate_by = 10
     extra_context = {"title": "Мой Архив", "header": "Мой Архив"}
 
     def get_queryset(self) -> QuerySet:
@@ -134,13 +137,10 @@ class ArticlesView(LoginRequiredMixin, ParserMixin, DetailView):
         self, *, object_list: Any = None, **kwargs: Any
     ) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        obj = self.model.objects.get(id=self.kwargs.get("pk"))
-        list_obj = obj.users.all()
-        for user in list_obj:
+        obj = self.model.objects.get(id=self.kwargs.get("pk")).users.all()
+        for user in obj:
             if self.request.user.pk == user.id:
                 context["archive"] = self.request.user.pk
-        if self.request.user.pk == obj.owner_id:
-            context["owner"] = self.request.user.pk
         context["header"] = "Статья"
         return context
 
@@ -225,16 +225,15 @@ class AddUrlView(LoginRequiredMixin, CreateView):
                 "Попробуйте обновить данные позже или перейти на источник"
             )
         obj.save()
+        user = User.objects.get(id = self.request.user.pk)
+        user.articles_set.add(obj)
         return super().form_valid(form)
 
-
-class DeleteUrlView(LoginRequiredMixin, DeleteView):
-    """Removing url from the database."""
-
-    model = Articles
-    template_name = "parser_project/delete_url.html"
-    success_url = reverse_lazy("parse:home")
-    login_url = "parse:article"
-
-    def get_queryset(self) -> QuerySet:
-        return super().get_queryset().filter(id=self.kwargs.get("pk"))
+    def form_invalid(self, form: Any) -> HttpResponse:
+        url = form.instance.url
+        if Articles.objects.filter(url=url).exists():
+            obj = Articles.objects.get(url=url)
+            user = User.objects.get(id = self.request.user.pk)
+            user.articles_set.add(obj)
+            return redirect(obj)
+        return super().form_invalid(form)

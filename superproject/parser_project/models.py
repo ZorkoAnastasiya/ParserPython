@@ -37,13 +37,6 @@ class Articles(models.Model):
     url: Any = models.URLField(unique=True)
     resource: Any = models.ForeignKey(Resources, on_delete=models.PROTECT)
     users: Any = models.ManyToManyField(User)
-    owner: Any = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-        related_name="my_article",
-    )
 
     def __str__(self) -> Any:
         return self.title
