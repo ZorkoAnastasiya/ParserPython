@@ -11,7 +11,9 @@ from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query import QuerySet
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.views.generic import DetailView
@@ -76,7 +78,7 @@ class AllResourcesView(LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet:
         obj = Resources.objects.get(title="Другие ресурсы")
-        return super().get_queryset().exclude(resource_id = obj.pk)
+        return super().get_queryset().exclude(resource_id=obj.pk)
 
 
 class ResourceNewsView(LoginRequiredMixin, ParserMixin, ListView):
@@ -167,6 +169,9 @@ class DeleteArticleArchiveView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args: Any, **kwargs: Any) -> Optional[str]:
         obj = get_object_or_404(Articles, id=self.kwargs.get("pk"))
+        if str(obj.resource) == "Другие ресурсы" and obj.users.count() == 1:
+            obj.delete()
+            return reverse("parse:archive")
         user = User.objects.get(id=self.request.user.pk)
         user.articles_set.remove(obj)
         return super().get_redirect_url(*args, **kwargs)
@@ -225,7 +230,7 @@ class AddUrlView(LoginRequiredMixin, CreateView):
                 "Попробуйте обновить данные позже или перейти на источник"
             )
         obj.save()
-        user = User.objects.get(id = self.request.user.pk)
+        user = User.objects.get(id=self.request.user.pk)
         user.articles_set.add(obj)
         return super().form_valid(form)
 
@@ -233,7 +238,7 @@ class AddUrlView(LoginRequiredMixin, CreateView):
         url = form.instance.url
         if Articles.objects.filter(url=url).exists():
             obj = Articles.objects.get(url=url)
-            user = User.objects.get(id = self.request.user.pk)
+            user = User.objects.get(id=self.request.user.pk)
             user.articles_set.add(obj)
             return redirect(obj)
         return super().form_invalid(form)
