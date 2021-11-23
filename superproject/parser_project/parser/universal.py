@@ -57,8 +57,8 @@ class UniversalParser(BaseParser):
             if date:
                 try:
                     result = item[1](date)
-                except ValueError as err:
-                    error = f"Completed with error: {err.__doc__} {err}"
+                except (ValueError, TypeError) as err:
+                    error = f"Completed with error: {err.__doc__} {err}. Date: {date}"
                     debug(error)
         return result
 
