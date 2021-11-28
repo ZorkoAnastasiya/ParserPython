@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load tz %}
 {% block title %}
 
     {{header}}: {{block.super}}
@@ -16,6 +16,7 @@
     <div class="card-header">
         Ресурс: {{object.resource}}
         <br>
+        {% timezone "Europe/Moscow" %}
         Дата публикации статьи: {{object.date|date:"Y-m-d H:i"}}
     </div>
     <div class="card-body">
@@ -38,6 +39,7 @@
     <div class="card-footer text-muted">
         <br>
         <span style="float:left">Дата последнего сохранения: {{object.date_update|date:"Y-m-d H:i"}}</span>
+        {% endtimezone %}
         <span style="float:right"><a href="{% url 'parse:update' object.pk %}" class="btn btn-outline-success">Обновить</a></span>
     </div>
 </div>
