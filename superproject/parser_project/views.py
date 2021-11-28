@@ -217,7 +217,6 @@ class AddUrlView(LoginRequiredMixin, CreateView):
         article = parser.parse_html(obj.url)
         res = Resources.objects.get(title="Другие ресурсы")
         obj.resource_id = res.id
-        obj.owner = self.request.user
         if article:
             obj.date = article["date"]
             obj.title = article["title"]
